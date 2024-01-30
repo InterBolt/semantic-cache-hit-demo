@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": "./docs/",
+    "noImplicitAny": true,
+    "module": "es6",
+    "target": "ESNext",
+    "jsx": "react",
+    "allowJs": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true
+  }
+}
