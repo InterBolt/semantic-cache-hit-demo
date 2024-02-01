@@ -2,10 +2,32 @@ import type { Metadata, Viewport } from "next";
 
 import "./index.css";
 
+const title = "An interactive clustering visualization of a semantic cache";
+const description =
+  "A visualization that uses recharts and the t-SNE to visualize semantic clusters of cached queries and the effect of a similarity threshold on the cache hit rate as well as the cache quality.";
+
 export const metadata: Metadata = {
-  title: "An interactive clustering visualization of a semantic cache",
-  description:
-    "A visualization that uses recharts and the t-SNE to visualize semantic clusters of cached queries and the effect of a similarity threshold on the cache hit rate as well as the cache quality.",
+  openGraph: {
+    title,
+    description,
+    url: `https://semanticcachehit.com`,
+    siteName: `Semantic Cache Hit`,
+    images: [
+      {
+        url: `https://semanticcachehit.com/images/banner.png`,
+        width: 900,
+        height: 300,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    creator: "@interbolt_colin",
+    card: "summary",
+  },
+  title,
+  description,
 };
 
 export const viewport: Viewport = {
