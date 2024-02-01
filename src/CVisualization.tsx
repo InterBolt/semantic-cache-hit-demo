@@ -77,145 +77,169 @@ const findCacheHitLines = (chartQueries: Array<TChartQuery>) => {
   return lines;
 };
 
-const CVisualization = React.memo((props: { similarityThreshold: number }) => {
-  const windowSize = useWindowSize();
-  const { similarityThreshold } = props;
-  const [cacheHitLines, setCacheHitLines] =
-    React.useState<null | TCacheHitLines>([]);
-  const [chartQueries, setChartQuerys] =
-    React.useState<null | Array<TChartQuery>>(null);
+const CVisualization = React.memo(
+  (props: {
+    similarityThreshold: number;
+    epsilon: number;
+    perplexity: number;
+    steps: number;
+  }) => {
+    const windowSize = useWindowSize();
+    const { epsilon, steps, perplexity, similarityThreshold } = props;
+    const [cacheHitLines, setCacheHitLines] =
+      React.useState<null | TCacheHitLines>([]);
+    const [chartQueries, setChartQuerys] =
+      React.useState<null | Array<TChartQuery>>(null);
 
-  React.useEffect(() => {
-    const points = convertVectorsToChartQuerys(
-      "tsne",
-      {
-        epsilon: 10,
-        perplexity: 5,
-        dim: 2,
-      },
-      processed,
-      similarityThreshold
-    );
-    let nextPoints;
-    if (!chartQueries) {
-      nextPoints = points;
-    } else {
-      nextPoints = chartQueries.map((cp, i) => ({
-        ...cp,
-        link: points[i].link,
-      }));
-    }
-    setChartQuerys(nextPoints);
-    setCacheHitLines(findCacheHitLines(nextPoints));
-  }, [similarityThreshold]);
+    React.useEffect(() => {
+      const points = convertVectorsToChartQuerys(
+        "tsne",
+        {
+          epsilon,
+          perplexity,
+          dim: 2,
+          steps,
+        },
+        processed,
+        similarityThreshold
+      );
+      let nextPoints;
+      if (!chartQueries) {
+        nextPoints = points;
+      } else {
+        nextPoints = chartQueries.map((cp, i) => ({
+          ...cp,
+          link: points[i].link,
+        }));
+      }
+      setChartQuerys(nextPoints);
+      setCacheHitLines(findCacheHitLines(nextPoints));
+    }, [similarityThreshold]);
 
-  const isMobile = windowSize?.width <= 700;
+    React.useEffect(() => {
+      const points = convertVectorsToChartQuerys(
+        "tsne",
+        {
+          epsilon,
+          perplexity,
+          dim: 2,
+          steps,
+        },
+        processed,
+        similarityThreshold
+      );
+      setChartQuerys(points);
+      setCacheHitLines(findCacheHitLines(points));
+    }, [epsilon, steps, perplexity]);
 
-  return !!chartQueries ? (
-    <ScatterChart
-      height={isMobile ? windowSize?.height - 200 : windowSize?.height - 200}
-      width={windowSize?.width}
-      margin={{
-        top: 0,
-        right: 0,
-        left: 0,
-        bottom: 0,
-      }}
-    >
-      <XAxis
+    const isMobile = windowSize?.width <= 700;
+
+    return !!chartQueries ? (
+      <ScatterChart
+        height={isMobile ? windowSize?.height - 200 : windowSize?.height - 200}
         width={windowSize?.width}
-        range={[-1, 1]}
-        ticks={ticks}
-        tickSize={0.001}
-        allowDecimals={true}
-        tickMargin={0}
-        dataKey="x"
-        type="number"
-        name="query"
-        hide={true}
-      />
-      <YAxis
-        width={windowSize?.width}
-        range={[-1, 1]}
-        ticks={ticks}
-        tickSize={0.001}
-        tickMargin={0}
-        allowDecimals={true}
-        dataKey="y"
-        type="number"
-        hide={true}
-      />
-      {(cacheHitLines || []).map((segment, i) => (
-        <ReferenceLine
-          key={"cache-line-" + i}
-          segment={segment}
-          stroke={styles.colors.chartCacheHitLine}
-          strokeWidth={2}
+        margin={{
+          top: 0,
+          right: 0,
+          left: 0,
+          bottom: 0,
+        }}
+      >
+        <XAxis
+          width={windowSize?.width}
+          range={[-1, 1]}
+          ticks={ticks}
+          tickSize={0.001}
+          allowDecimals={true}
+          tickMargin={0}
+          dataKey="x"
+          type="number"
+          name="query"
+          hide={true}
         />
-      ))}
-      <Tooltip
-        position={{ x: 20, y: 20 }}
-        content={(v) => {
-          const prompt = v.payload?.[0]?.payload?.prompt;
-          const completion = v.payload?.[0]?.payload?.completion;
-          return (
-            <div
-              style={{
-                maxWidth: windowSize?.width - 80,
-                padding: "1rem",
-                backgroundColor: "white",
-                borderRadius: ".5rem",
-                boxShadow: "0 0 10px rgba(0,0,0,.5)",
-              }}
-            >
-              <p>
-                <strong>Prompt:</strong> {prompt}
-              </p>
-              <p>
-                <strong>GPT-4 completion:</strong> {completion}
-              </p>
-            </div>
-          );
-        }}
-      />
+        <YAxis
+          width={windowSize?.width}
+          range={[-1, 1]}
+          ticks={ticks}
+          tickSize={0.001}
+          tickMargin={0}
+          allowDecimals={true}
+          dataKey="y"
+          type="number"
+          hide={true}
+        />
+        {(cacheHitLines || []).map((segment, i) => (
+          <ReferenceLine
+            key={"cache-line-" + i}
+            segment={segment}
+            stroke={styles.colors.chartCacheHitLine}
+            strokeWidth={2}
+          />
+        ))}
+        <Tooltip
+          position={{ x: 20, y: 20 }}
+          content={(v) => {
+            const prompt = v.payload?.[0]?.payload?.prompt;
+            const completion = v.payload?.[0]?.payload?.completion;
+            return (
+              <div
+                style={{
+                  maxWidth: windowSize?.width - 80,
+                  padding: "1rem",
+                  backgroundColor: "white",
+                  borderRadius: ".5rem",
+                  boxShadow: "0 0 10px rgba(0,0,0,.5)",
+                }}
+              >
+                <p>
+                  <strong>Prompt:</strong> {prompt}
+                </p>
+                <p>
+                  <strong>GPT-4 completion:</strong> {completion}
+                </p>
+              </div>
+            );
+          }}
+        />
 
-      <Scatter
-        isAnimationActive={false}
+        <Scatter
+          isAnimationActive={false}
+          style={{
+            backgroundColor: "gray",
+          }}
+          data={chartQueries.map((cp) => ({ ...cp.point, ...cp }))}
+          fill="#ffffff"
+          shape={(props: any) => {
+            const { cx, cy, payload } = props;
+
+            return (
+              <g>
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  r={isMobile ? 6 : 5}
+                  fill={
+                    payload.isCache
+                      ? styles.colors.chartCached
+                      : styles.colors.chartQuery
+                  }
+                />
+              </g>
+            );
+          }}
+        />
+      </ScatterChart>
+    ) : (
+      <div
         style={{
-          backgroundColor: "gray",
+          width: "100%",
+          height: "800px",
         }}
-        data={chartQueries.map((cp) => ({ ...cp.point, ...cp }))}
-        fill="#ffffff"
-        shape={(props: any) => {
-          const { cx, cy, payload } = props;
-
-          return (
-            <g>
-              <circle
-                cx={cx}
-                cy={cy}
-                r={isMobile ? 6 : 5}
-                fill={
-                  payload.isCache
-                    ? styles.colors.chartCached
-                    : styles.colors.chartQuery
-                }
-              />
-            </g>
-          );
-        }}
-      />
-    </ScatterChart>
-  ) : (
-    <div
-      style={{
-        width: "100%",
-        height: "800px",
-      }}
-    >
-      <div />
-    </div>
-  );
-});
+      >
+        <div />
+      </div>
+    );
+  }
+);
 
 export default CVisualization;

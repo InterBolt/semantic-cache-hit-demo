@@ -7,12 +7,14 @@ export default function tSNE(
     epsilon: number;
     perplexity: number;
     dim: number;
+    steps: number;
   }
 ): Array<{ x: number; y: number }> {
+  const { steps, ...tsneOptions } = options;
   const tSNE = initTSNE() as any;
-  const tSNEInstance = new tSNE(options);
+  const tSNEInstance = new tSNE(tsneOptions);
   tSNEInstance.initDataDist(processed.map((v) => v.vector));
-  for (let k = 0; k < 1000; k++) {
+  for (let k = 0; k < steps; k++) {
     tSNEInstance.step();
   }
   return tSNEInstance.getSolution().map(([x, y]: any) => ({ x, y }));
