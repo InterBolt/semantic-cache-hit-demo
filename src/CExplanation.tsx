@@ -78,7 +78,7 @@ const CExplanation = () => {
         </i>
         <br />
         <br />
-        <strong>Disregard line lengths. They're not proportional.</strong>
+        <strong>Line length doesn't really mean anything.</strong>
         {` `}The distribution of individual dots (or prompt requests) is only
         meant to visualize <i>clusterings</i> of semantically similar prompt
         requests. But the exact distance between any two specific prompt
