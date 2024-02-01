@@ -1,0 +1,58 @@
+/* TAILWIND */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+* {
+  font-family: monospace;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+a {
+  color: rgb(0, 0, 238);
+}
+
+a:visited {
+  color: rgb(85, 26, 139);
+}
+
+section,
+div {
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box; /* Firefox, other Gecko */
+  box-sizing: border-box; /* Opera/IE 8+ */
+}
+
+section {
+  padding: 3rem;
+  border-radius: 1rem;
+}
+
+p {
+  line-height: 1.5rem !important;
+}
+
+.container-width {
+  max-width: 800px;
+  margin: auto;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .mobile-border-radius {
+    border-radius: 0.5rem;
+  }
+
+  section {
+    padding: 2rem;
+  }
+}
