@@ -88,6 +88,8 @@ const CVisualization = React.memo(
   }) => {
     const windowSize = useWindowSize();
     const { epsilon, steps, perplexity, similarityThreshold } = props;
+
+    const [expands, setExpands] = React.useState<string[]>([]);
     const [cacheHitLines, setCacheHitLines] =
       React.useState<null | TCacheHitLines>([]);
     const [chartQueries, setChartQuerys] =
@@ -175,7 +177,7 @@ const CVisualization = React.memo(
             key={"cache-line-" + i}
             segment={segment}
             stroke={styles.colors.chartCacheHitLine}
-            strokeWidth={2}
+            strokeWidth={1}
           />
         ))}
         <Tooltip
@@ -239,14 +241,53 @@ const CVisualization = React.memo(
             return (
               <g>
                 <circle
+                  className="transition-all"
+                  r={expands.includes(`${cx}-${cy}`) ? 15 : 4}
                   cx={cx}
                   cy={cy}
-                  r={isMobile ? 6 : 5}
                   fill={
                     payload.isCache
                       ? styles.colors.chartCached
                       : styles.colors.chartQuery
                   }
+                />
+                <circle
+                  onTouchStart={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setExpands((prev) =>
+                      prev
+                        .filter((e: string) => e !== `${cx}-${cy}`)
+                        .concat(`${cx}-${cy}`)
+                    );
+                  }}
+                  onMouseEnter={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setExpands((prev) =>
+                      prev
+                        .filter((e: string) => e !== `${cx}-${cy}`)
+                        .concat(`${cx}-${cy}`)
+                    );
+                  }}
+                  onMouseOut={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setExpands((prev) =>
+                      prev.filter((e: string) => e !== `${cx}-${cy}`)
+                    );
+                  }}
+                  onMouseLeave={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setExpands((prev) =>
+                      prev.filter((e: string) => e !== `${cx}-${cy}`)
+                    );
+                  }}
+                  r={8}
+                  cx={cx}
+                  cy={cy}
+                  fill={"transparent"}
                 />
               </g>
             );
