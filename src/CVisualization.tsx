@@ -42,16 +42,18 @@ const convertVectorsToChartQuerys = <GAlgo extends keyof typeof algos>(
   return algos[algo](processed, algoParams).map(
     (point: { x: number; y: number }, i: number) => {
       const processedQuery = processed[i];
+      const link = !processedQuery.cacheHit
+        ? null
+        : processedQuery.cacheHit.similarity > similarityThreshold
+        ? processedQuery.cacheHit.index
+        : null;
       return {
         point,
         isCache: processedQuery.isCache,
         prompt: processedQuery.prompt,
         completion: processedQuery.completion,
-        link: !processedQuery.cacheHit
-          ? null
-          : processedQuery.cacheHit.similarity > similarityThreshold
-          ? processedQuery.cacheHit.index
-          : null,
+        cachedCompletion: link ? processed[link].completion : null,
+        link: link,
       };
     }
   );
@@ -180,23 +182,45 @@ const CVisualization = React.memo(
           position={{ x: 20, y: 20 }}
           content={(v) => {
             const prompt = v.payload?.[0]?.payload?.prompt;
+            const link = v.payload?.[0]?.payload?.link;
+            const isCache = v.payload?.[0]?.payload?.isCache || false;
             const completion = v.payload?.[0]?.payload?.completion;
+            const cachedCompletion = link
+              ? v.payload?.[0]?.payload?.cachedCompletion
+              : undefined;
             return (
-              <div
-                style={{
-                  maxWidth: windowSize?.width - 80,
-                  padding: "1rem",
-                  backgroundColor: "white",
-                  borderRadius: ".5rem",
-                  boxShadow: "0 0 10px rgba(0,0,0,.5)",
-                }}
-              >
-                <p>
-                  <strong>Prompt:</strong> {prompt}
-                </p>
-                <p>
-                  <strong>GPT-4 completion:</strong> {completion}
-                </p>
+              <div className="flex flex-col gap-4 max-w-full w-[90vw] sm:w-[700px] p-4 bg-white rounded-md shadow-md">
+                <div className="flex flex-col w-full">
+                  {isCache ? (
+                    <h5>Cached request:</h5>
+                  ) : (
+                    <h5>Future request:</h5>
+                  )}
+                  <p>{prompt}</p>
+                </div>
+                {cachedCompletion ? (
+                  <>
+                    <div className="flex flex-col w-full">
+                      <h5>Would use this cached response:</h5>
+                      <p>{cachedCompletion}</p>
+                    </div>
+                    <div className="flex flex-col w-full text-gray-600">
+                      <h5>Response if the cache didn't exist:</h5>
+                      <p>{completion}</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex flex-col w-full">
+                      {isCache ? (
+                        <h5>Cached response:</h5>
+                      ) : (
+                        <h5>Future response:</h5>
+                      )}
+                      <p>{completion}</p>
+                    </div>
+                  </>
+                )}
               </div>
             );
           }}

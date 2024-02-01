@@ -14,6 +14,105 @@ const LazyCVisualization = dynamic(() => import("@/src/CVisualization"), {
   ),
 });
 
+const PanelContainer = ({ children }: { children: JSX.Element }) => {
+  return (
+    <div className="flex flex-col w-full gap-4 p-4 bg-white rounded-md shadow sm:p-8">
+      {children}
+    </div>
+  );
+};
+
+const SliderInput = ({
+  denominator,
+  name,
+  value,
+  range: [min, max],
+  onChange,
+}: {
+  denominator: number;
+  range: [number, number];
+  value: number;
+  name: string;
+  onChange: (num: number) => void;
+}) => {
+  return (
+    <>
+      <label
+        htmlFor={name}
+        className="w-full"
+        style={{
+          width: "100%",
+          marginBottom: ".8rem",
+        }}
+      >
+        {name[0].toUpperCase() + name.slice(1)} -{" "}
+        <span style={{ fontWeight: "bold" }}> currently {value}</span>
+      </label>
+      <input
+        className="w-full"
+        onChange={(e) =>
+          onChange(
+            Number((parseFloat(e.target.value) / denominator).toFixed(2))
+          )
+        }
+        value={value * denominator}
+        type="range"
+        id={name}
+        name={name}
+        min={min}
+        max={max}
+      />
+    </>
+  );
+};
+
+const HyperParamNumericInput = ({
+  name,
+  onChange,
+  onError,
+  error,
+  value,
+  range: [min, max],
+}: {
+  name: string;
+  onChange: (str: string) => void;
+  onError: (error: string) => void;
+  error: string;
+  value: string;
+  range: [number, number];
+}) => {
+  return (
+    <>
+      <label htmlFor={name} className="">
+        {name[0].toUpperCase() + name.slice(1)} ({min}-{max}) -{" "}
+        <strong>currently {value}</strong>
+      </label>
+      {error ? <p className="font-semibold text-red-400">{error}</p> : null}
+      <input
+        value={value}
+        onChange={(e) => {
+          const nextNumber = Number(e.target.value);
+          const isError = nextNumber < min || nextNumber > max;
+          onError(isError ? "Must be between 0-100" : "");
+          if (e.target.value === "") {
+            onChange("");
+          } else {
+            onChange(nextNumber.toFixed(0));
+          }
+        }}
+        style={{
+          borderColor: error ? "red" : "rgba(0, 0, 0, .2)",
+        }}
+        min={min}
+        max={max}
+        className="border-2 rounded-md"
+        name={name}
+        type="number"
+      />
+    </>
+  );
+};
+
 const LegendLabel = ({
   shape,
   description,
@@ -24,8 +123,8 @@ const LegendLabel = ({
   description: string;
   color: string;
 }) => (
-  <div className="flex items-center gap-2">
-    <div className="flex flex-col justify-center items-center py-4 min-w-[4rem] w-[4rem] rounded-md  bg-gradient-to-r from-gray-800 to-gray-950">
+  <div className="flex items-center gap-4">
+    <div className="flex flex-col justify-center items-center py-4 min-w-[4rem] w-[4rem] min-h-[4rem] h-[4rem] rounded-md  bg-gradient-to-r from-gray-800 to-gray-950">
       {shape === "dot" ? (
         <div
           className="m-auto"
@@ -56,9 +155,9 @@ const LegendLabel = ({
 );
 
 export default function CScreen() {
-  const [epsilon, setEpsilon] = React.useState<null | number>(10);
-  const [perplexity, setPerplexity] = React.useState<null | number>(30);
-  const [steps, setSteps] = React.useState<null | number>(500);
+  const [epsilon, setEpsilon] = React.useState<string>("10");
+  const [perplexity, setPerplexity] = React.useState<string>("30");
+  const [steps, setSteps] = React.useState<string>("500");
 
   const [epsilonError, setEpsilonError] = React.useState("");
   const [perplexityError, setPerplexityError] = React.useState("");
@@ -91,216 +190,101 @@ export default function CScreen() {
               alignItems: "center",
             }}
           >
-            <div
-              style={{
-                width: "100%",
-                display: "flex",
-                gap: "1rem",
-                alignItems: "start",
-                flexDirection: "column",
-              }}
-            >
-              <h3
-                style={{
-                  marginBottom: ".3rem",
-                }}
-              >
-                <strong>Legend:</strong>
-              </h3>
-              <LegendLabel
-                shape="dot"
-                name="Blue dot"
-                description="a new user prompt"
-                color={styles.colors.chartQuery}
-              />
-              <LegendLabel
-                shape="dot"
-                name="White dot"
-                description="a cached user prompt"
-                color={styles.colors.chartCached}
-              />
-              <LegendLabel
-                name="Green line"
-                shape="line"
-                description="indicates that the new user prompt (blue dot) will result in a cache hit where the cache hit is the white dot."
-                color={styles.colors.chartCacheHitLine}
-              />
-              <h3
-                style={{
-                  margin: 0,
-                  marginTop: "1rem",
-                }}
-              >
-                <strong>Usage notes:</strong>
-              </h3>
-              <p
-                style={{
-                  margin: 0,
-                }}
-              >
-                Hover over the dots to see the user prompt and its associated
-                completion. And use the slider to change the similarity
-                threshold.
-              </p>
-              <h3
-                style={{
-                  margin: 0,
-                  marginTop: "1rem",
-                }}
-              >
-                <strong>Controls:</strong>
-              </h3>
-              <div className="flex flex-col w-full">
-                <label
-                  className="inline-flex flex-col gap-2 sm:flex-row"
-                  style={{
-                    display: "inline-flex",
-                    width: "100%",
-                    marginBottom: ".8rem",
-                  }}
-                >
-                  Change similarity threshold -
-                  <span style={{ fontWeight: "bold" }}>
-                    {" "}
-                    currently {debouncedSimilarityThreshold}
-                  </span>
-                </label>
-                <input
-                  style={{
-                    width: "100%",
-                    marginTop: 0,
-                  }}
-                  onChange={(e) =>
-                    setSimilarityThreshold(
-                      Number((parseFloat(e.target.value) / 100).toFixed(2))
-                    )
-                  }
-                  value={similarityThreshold * 100}
-                  type="range"
-                  id="similarityThreshold"
-                  name="Similarity Threshold"
-                  min="0"
-                  max="100"
-                />
+            <div className="flex flex-col w-full gap-8">
+              <div className="flex flex-col w-full gap-4">
+                <h3>Legend:</h3>
+                <PanelContainer>
+                  <>
+                    <LegendLabel
+                      shape="dot"
+                      name="Blue dot"
+                      description="Represents a potential prompt request"
+                      color={styles.colors.chartQuery}
+                    />
+                    <LegendLabel
+                      shape="dot"
+                      name="White dot"
+                      description="Represents a cached prompt request"
+                      color={styles.colors.chartCached}
+                    />
+                    <LegendLabel
+                      name="Green line"
+                      shape="line"
+                      description="Connects a potential prompt to a cached prompt if the potential prompt is sufficiently semantically similar to the cached prompt. AKA a cache hit."
+                      color={styles.colors.chartCacheHitLine}
+                    />
+                  </>
+                </PanelContainer>
               </div>
-              <div className="flex flex-col w-full">
-                <label
-                  className="inline-flex flex-col gap-2 sm:flex-row"
-                  style={{
-                    display: "inline-flex",
-                    width: "100%",
-                    marginBottom: ".8rem",
-                  }}
-                >
-                  Adjust t-SNE parameters -{" "}
-                  <a href="https://distill.pub/2016/misread-tsne/">
-                    learn more
-                  </a>
-                </label>
+              <div className="flex flex-col w-full gap-4">
+                <h3>Usage notes:</h3>
+                <PanelContainer>
+                  <p>
+                    Hover over the dots to see the prompt request and its
+                    associated completion. And use the slider to change the
+                    similarity threshold.
+                  </p>
+                </PanelContainer>
+              </div>
+              <div className="flex flex-col w-full gap-4">
+                <h3>Customize the params:</h3>
                 <div className="flex flex-col w-full gap-4">
-                  <div className="flex flex-col w-full gap-1">
-                    <label className="">
-                      Perplexity (0-100) - <strong>currently 30</strong>
-                    </label>
-                    {perplexityError ? (
-                      <label className="font-semibold text-red-400">
-                        {perplexityError}
-                      </label>
-                    ) : null}
-                    <input
-                      {...(perplexity ? { value: perplexity } : {})}
-                      onChange={(e) => {
-                        if (
-                          Number(e.target.value) < 0 ||
-                          Number(e.target.value) > 100
-                        ) {
-                          setPerplexity(null);
-                          setPerplexityError("Must be between 0-100");
-                        } else {
-                          setPerplexity(
-                            Number(Number(e.target.value).toFixed(0))
-                          );
-                          setPerplexityError("");
-                        }
-                      }}
-                      style={{
-                        borderColor: perplexityError
-                          ? "red"
-                          : "rgba(0, 0, 0, .2)",
-                      }}
-                      min={0}
-                      max={100}
-                      className="border-2 rounded-md"
-                      name="perplexity"
-                      type="number"
-                    />
-                  </div>
-                  <div className="flex flex-col w-full gap-1">
-                    <label className="">
-                      Epsilon (1-20) - <strong>currently 10</strong>
-                    </label>
-                    {epsilonError ? (
-                      <label className="font-semibold text-red-400">
-                        {epsilonError}
-                      </label>
-                    ) : null}
-                    <input
-                      {...(epsilon ? { value: epsilon } : {})}
-                      onChange={(e) => {
-                        if (
-                          Number(e.target.value) < 1 ||
-                          Number(e.target.value) > 1000
-                        ) {
-                          setEpsilon(null);
-                          setEpsilonError("Must be between 1-20");
-                        } else {
-                          setEpsilon(Number(Number(e.target.value).toFixed(0)));
-                          setEpsilonError("");
-                        }
-                      }}
-                      style={{
-                        borderColor: epsilonError ? "red" : "rgba(0, 0, 0, .2)",
-                      }}
-                      min={1}
-                      max={20}
-                      className="border-2 rounded-md"
-                      name="epsilon"
-                      type="number"
-                    />
-                  </div>
-                  <div className="flex flex-col w-full gap-1">
-                    <label className="">
-                      Steps (1 - 1000) - <strong>currently 500</strong>
-                    </label>
-                    {stepError ? (
-                      <label className="font-semibold text-red-400">
-                        {stepError}
-                      </label>
-                    ) : null}
-                    <input
-                      {...(steps ? { value: steps } : {})}
-                      onChange={(e) => {
-                        if (
-                          Number(e.target.value) < 1 ||
-                          Number(e.target.value) > 1000
-                        ) {
-                          setSteps(null);
-                          setStepError("Must be between 1-1000");
-                        } else {
-                          setSteps(Number(Number(e.target.value).toFixed(0)));
-                          setStepError("");
-                        }
-                      }}
-                      style={{
-                        borderColor: stepError ? "red" : "rgba(0, 0, 0, .2)",
-                      }}
-                      className="border-2 rounded-md"
-                      name="steps"
-                      min={1}
-                      max={1000}
-                      type="number"
-                    />
-                  </div>
+                  <PanelContainer>
+                    <>
+                      <h4>
+                        <a href="https://distill.pub/2016/misread-tsne/">
+                          t-SNE clustering
+                        </a>{" "}
+                        parameters
+                      </h4>
+                      <div className="flex flex-col w-full gap-4">
+                        <div className="flex flex-col w-full gap-1">
+                          <HyperParamNumericInput
+                            name="perplexity"
+                            onChange={setPerplexity}
+                            onError={setPerplexityError}
+                            error={perplexityError}
+                            value={perplexity}
+                            range={[0, 100]}
+                          />
+                        </div>
+                        <div className="flex flex-col w-full gap-1">
+                          <HyperParamNumericInput
+                            name="epsilon"
+                            onChange={setEpsilon}
+                            onError={setEpsilonError}
+                            error={epsilonError}
+                            value={epsilon}
+                            range={[1, 20]}
+                          />
+                        </div>
+                        <div className="flex flex-col w-full gap-1">
+                          <HyperParamNumericInput
+                            name="steps"
+                            onChange={setSteps}
+                            onError={setStepError}
+                            error={stepError}
+                            value={steps}
+                            range={[100, 1000]}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  </PanelContainer>
+                  <PanelContainer>
+                    <>
+                      <h4>Semantic cache parameters</h4>
+                      <div className="flex flex-col w-full">
+                        <SliderInput
+                          denominator={100}
+                          name="similarity threshold"
+                          value={similarityThreshold}
+                          range={[0, 100]}
+                          onChange={setSimilarityThreshold}
+                        />
+                      </div>
+                    </>
+                  </PanelContainer>
                 </div>
               </div>
             </div>
@@ -324,9 +308,9 @@ export default function CScreen() {
             <div className="py-4 h-[700px]"></div>
           ) : (
             <LazyCVisualization
-              epsilon={debouncedEpsilon || 10}
-              perplexity={debouncedPerplexity || 30}
-              steps={debouncedSteps || 500}
+              epsilon={Number(debouncedEpsilon || 10)}
+              perplexity={Number(debouncedPerplexity || 30)}
+              steps={Number(debouncedSteps || 500)}
               similarityThreshold={debouncedSimilarityThreshold}
             />
           )}

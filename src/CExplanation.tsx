@@ -6,13 +6,12 @@ const CExplanation = () => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col w-full gap-4">
-        <h1
-          style={{
-            lineHeight: "2.9rem",
-          }}
-        >
-          An interactive clustering visualization of a semantic cache
-        </h1>
+        <div className="flex flex-col w-full">
+          <h1>Semantic Cache Hits</h1>
+          <p className="text-gray-700">
+            An interactive clustering visualization of a semantic cache.
+          </p>
+        </div>
         <img
           style={{
             width: "100%",
@@ -22,34 +21,38 @@ const CExplanation = () => {
           src="/images/banner.webp"
         />
         <p>
-          The visualizaton below uses a pairwise clustering algorithm called{" "}
+          The visualizaton below uses a clustering algorithm called{" "}
           <a href="https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding">
             t-SNE
           </a>{" "}
-          (could also use something like{" "}
-          <a href="https://pair-code.github.io/understanding-umap/">UMAP</a>) to
-          visualize clusters of semantically similar user prompts. Each user
-          prompt is represented by a single dot and is meant to represent a
-          hypothetical request to an AI that specializes in generating fitness
-          routines. White dots denote user prompts that were previously cached,
-          and blue dots denote user prompts that might occur in the future. The
-          line between a blue and white dot represents a cache hit where the new
-          user prompt (blue dot) would use the response from a previously cached
-          user prompt (white dot). A cache hit implies that the previously
-          cached user prompt is semantically similar to the new user prompt.
+          (
+          <i>
+            I know, probably not as good as using{" "}
+            <a href="https://pair-code.github.io/understanding-umap/">UMAP</a>
+          </i>
+          ) to visualize clusters of semantically similar prompt requests. Each
+          prompt request is represented by a single dot and is meant to
+          represent a hypothetical request to an AI that specializes in
+          generating fitness routines. White dots denote prompt requests that
+          were previously cached, and blue dots denote prompt requests that
+          might occur in the future. The green line between a blue and white dot
+          represents a cache hit where the new prompt (blue dot) would use a
+          cached response from a previous prompt request (white dot). A cache
+          hit implies that the previously cached prompt request is semantically
+          similar to the new prompt request.
         </p>
       </div>
       <p>
         <strong>What is a similarity threshold?</strong>
-        {` `}A similarity threshold is a value between 0-1 which represents the
-        minimum similarity between a new user prompt and a cached user prompt to
-        result in a cache hit. As the similarity threshold goes up, expect fewer
-        and fewer connecting lines between the blue and white dots, and when it
-        goes down, expect more.
+        {` `}A similarity threshold is a number between 0-1 that represents the
+        minimum required similarity between a new prompt request and a cached
+        prompt request to result in a cache hit. As the similarity threshold
+        goes up, expect fewer connecting lines between the blue and white dots,
+        and when it goes down, expect more.
         <br />
         <br />
         <strong>How is semantic similarity calculated?</strong>
-        {` `}"Similarity" between any two user prompts refers to the{" "}
+        {` `}The "Similarity" between any two prompt requests refers to the{" "}
         <a href="https://en.wikipedia.org/wiki/Cosine_similarity">
           cosine similarity
         </a>{" "}
@@ -63,26 +66,23 @@ const CExplanation = () => {
         <a href="https://interbolt.org/blog/semantic-cache-demo/">Learn more</a>
         .{" "}
         <i>
-          Vector embeddings for the user prompts in the visualization were
+          Vector embeddings for the prompt requests in the visualization were
           generated using one of OpenAI's latest embedding model,{" "}
           <a href="https://platform.openai.com/docs/guides/embeddings">
             text-embedding-3-small
           </a>
           .
-        </i>{" "}
-        The <strong>similarity threshold</strong> slider adjusts the minimum
-        semantic similarity to a previously cached key that is required to
-        result in a cache hit.
+        </i>
         <br />
         <br />
-        <strong>Line lengths are meaningless.</strong>
-        {` `}The distribution of individual dots (or user prompts) is only meant
-        to visualize <i>clusterings</i> of semantically similar user prompts.
-        But the exact distance between any two specific user prompts is not a
-        precise measurement of their semantic similarity. This is because it's
-        impossible to accurately represent the global structure of a higher
-        dimensional space in a 2D space. For more info about the clustering
-        algo,{" "}
+        <strong>Disregard line lengths. They're not proportional.</strong>
+        {` `}The distribution of individual dots (or prompt requests) is only
+        meant to visualize <i>clusterings</i> of semantically similar prompt
+        requests. But the exact distance between any two specific prompt
+        requests in the visualization below is not a precise measurement of
+        semantic similarity. It's impossible to accurately represent the global
+        structure of a higher dimensional space in a 2D space. For more info
+        about the clustering algo,{" "}
         <a href="https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding">
           t-distributed stochastic neighbor embedding
         </a>
