@@ -27,7 +27,7 @@ const CExplanation = () => {
           </a>{" "}
           (
           <i>
-            I know, probably not as good as using{" "}
+            probably not as good as using{" "}
             <a href="https://pair-code.github.io/understanding-umap/">UMAP</a>
           </i>
           ) to visualize clusters of semantically similar prompt requests. Each
@@ -36,10 +36,10 @@ const CExplanation = () => {
           generating fitness routines. White dots denote prompt requests that
           were previously cached, and blue dots denote prompt requests that
           might occur in the future. The green line between a blue and white dot
-          represents a cache hit where the new prompt (blue dot) would use a
-          cached response from a previous prompt request (white dot). A cache
-          hit implies that the previously cached prompt request is semantically
-          similar to the new prompt request.
+          represents a cache hit where the new prompt request (blue dot) would
+          use a cached response from a previous prompt request (white dot). A
+          cache hit implies that the previously cached prompt request is
+          semantically similar to the new prompt request.
         </p>
       </div>
       <p>
