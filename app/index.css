@@ -17,6 +17,11 @@ h2 {
   font-weight: bold;
 }
 
+h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
 a {
   color: rgb(0, 0, 238);
 }
@@ -32,11 +37,6 @@ div {
   box-sizing: border-box; /* Opera/IE 8+ */
 }
 
-section {
-  padding: 3rem;
-  border-radius: 1rem;
-}
-
 p {
   line-height: 1.5rem !important;
 }
@@ -50,9 +50,5 @@ p {
 @media (max-width: 900px) {
   .mobile-border-radius {
     border-radius: 0.5rem;
-  }
-
-  section {
-    padding: 2rem;
   }
 }
