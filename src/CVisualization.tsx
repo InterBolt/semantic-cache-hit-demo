@@ -79,6 +79,55 @@ const findCacheHitLines = (chartQueries: Array<TChartQuery>) => {
   return lines;
 };
 
+const TooltipContent = (props: any) => {
+  React.useEffect(() => {
+    const onMouseOut = (event: MouseEvent) => {
+      if (event.target instanceof Element) {
+        if (event.target.closest(".recharts-tooltip-wrapper")) {
+          return;
+        }
+        props.onMouseLeave();
+      }
+    };
+    addEventListener("mouseout", onMouseOut);
+    return () => removeEventListener("mouseenter", onMouseOut);
+  }, []);
+  const prompt = props.payload?.[0]?.payload?.prompt;
+  const link = props.payload?.[0]?.payload?.link;
+  const isCache = props.payload?.[0]?.payload?.isCache || false;
+  const completion = props.payload?.[0]?.payload?.completion;
+  const cachedCompletion = link
+    ? props.payload?.[0]?.payload?.cachedCompletion
+    : undefined;
+  return (
+    <div className="flex flex-col gap-4 max-w-full w-[90vw] sm:w-[700px] p-4 bg-white rounded-md shadow-md">
+      <div className="flex flex-col w-full">
+        {isCache ? <h4>Cached request:</h4> : <h4>Future request:</h4>}
+        <p>{prompt}</p>
+      </div>
+      {cachedCompletion ? (
+        <>
+          <div className="flex flex-col w-full">
+            <h4>Would use this cached response:</h4>
+            <p>{cachedCompletion}</p>
+          </div>
+          <div className="flex flex-col w-full text-gray-600">
+            <h4>Response if the cache didn't exist:</h4>
+            <p>{completion}</p>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex flex-col w-full">
+            {isCache ? <h4>Cached response:</h4> : <h4>Future response:</h4>}
+            <p>{completion}</p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
 const CVisualization = React.memo(
   (props: {
     similarityThreshold: number;
@@ -180,54 +229,7 @@ const CVisualization = React.memo(
             strokeWidth={1}
           />
         ))}
-        <Tooltip
-          position={{ x: 20, y: 20 }}
-          content={(v) => {
-            const prompt = v.payload?.[0]?.payload?.prompt;
-            const link = v.payload?.[0]?.payload?.link;
-            const isCache = v.payload?.[0]?.payload?.isCache || false;
-            const completion = v.payload?.[0]?.payload?.completion;
-            const cachedCompletion = link
-              ? v.payload?.[0]?.payload?.cachedCompletion
-              : undefined;
-            return (
-              <div className="flex flex-col gap-4 max-w-full w-[90vw] sm:w-[700px] p-4 bg-white rounded-md shadow-md">
-                <div className="flex flex-col w-full">
-                  {isCache ? (
-                    <h4>Cached request:</h4>
-                  ) : (
-                    <h4>Future request:</h4>
-                  )}
-                  <p>{prompt}</p>
-                </div>
-                {cachedCompletion ? (
-                  <>
-                    <div className="flex flex-col w-full">
-                      <h4>Would use this cached response:</h4>
-                      <p>{cachedCompletion}</p>
-                    </div>
-                    <div className="flex flex-col w-full text-gray-600">
-                      <h4>Response if the cache didn't exist:</h4>
-                      <p>{completion}</p>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex flex-col w-full">
-                      {isCache ? (
-                        <h4>Cached response:</h4>
-                      ) : (
-                        <h4>Future response:</h4>
-                      )}
-                      <p>{completion}</p>
-                    </div>
-                  </>
-                )}
-              </div>
-            );
-          }}
-        />
-
+        <Tooltip position={{ x: 20, y: 20 }} content={TooltipContent} />
         <Scatter
           isAnimationActive={false}
           style={{
