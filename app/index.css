@@ -56,9 +56,3 @@ p {
   margin: auto;
   width: 100%;
 }
-
-@media (max-width: 900px) {
-  .mobile-border-radius {
-    border-radius: 0.5rem;
-  }
-}

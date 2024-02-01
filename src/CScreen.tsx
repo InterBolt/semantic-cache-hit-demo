@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useDebounce, useWindowSize } from "usehooks-ts";
+import { useDebounce } from "usehooks-ts";
 import CExplanation from "./CExplanation";
 import styles from "./styles";
 import dynamic from "next/dynamic";
@@ -89,7 +89,9 @@ const HyperParamNumericInput = ({
       </label>
       {error ? <p className="font-semibold text-red-400">{error}</p> : null}
       <input
+        aria-label={name}
         value={value}
+        id={name}
         onChange={(e) => {
           const nextNumber = Number(e.target.value);
           const isError = nextNumber < min || nextNumber > max;
@@ -291,7 +293,6 @@ export default function CScreen() {
           </section>
         </div>
         <section
-          className="mobile-border-radius"
           style={{
             position: "relative",
             width: "100%",
