@@ -13,6 +13,7 @@ const CExplanation = () => {
           </p>
         </div>
         <img
+          alt="banner"
           style={{
             width: "100%",
             height: "auto",
@@ -63,7 +64,9 @@ const CExplanation = () => {
         . Vector embeddings encode semantic information within a high
         dimensional numerical vector array, and we can compare numerical vector
         arrays using cosine similarity.{" "}
-        <a href="https://interbolt.org/blog/semantic-cache-demo/">Learn more</a>
+        <a href="https://interbolt.org/blog/semantic-cache-demo/">
+          I wrote about this
+        </a>
         .{" "}
         <i>
           Vector embeddings for the prompt requests in the visualization were

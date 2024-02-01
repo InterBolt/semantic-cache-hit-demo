@@ -192,20 +192,20 @@ const CVisualization = React.memo(
               <div className="flex flex-col gap-4 max-w-full w-[90vw] sm:w-[700px] p-4 bg-white rounded-md shadow-md">
                 <div className="flex flex-col w-full">
                   {isCache ? (
-                    <h5>Cached request:</h5>
+                    <h4>Cached request:</h4>
                   ) : (
-                    <h5>Future request:</h5>
+                    <h4>Future request:</h4>
                   )}
                   <p>{prompt}</p>
                 </div>
                 {cachedCompletion ? (
                   <>
                     <div className="flex flex-col w-full">
-                      <h5>Would use this cached response:</h5>
+                      <h4>Would use this cached response:</h4>
                       <p>{cachedCompletion}</p>
                     </div>
                     <div className="flex flex-col w-full text-gray-600">
-                      <h5>Response if the cache didn't exist:</h5>
+                      <h4>Response if the cache didn't exist:</h4>
                       <p>{completion}</p>
                     </div>
                   </>
@@ -213,9 +213,9 @@ const CVisualization = React.memo(
                   <>
                     <div className="flex flex-col w-full">
                       {isCache ? (
-                        <h5>Cached response:</h5>
+                        <h4>Cached response:</h4>
                       ) : (
-                        <h5>Future response:</h5>
+                        <h4>Future response:</h4>
                       )}
                       <p>{completion}</p>
                     </div>

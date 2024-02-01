@@ -194,7 +194,7 @@ export default function CScreen() {
           >
             <div className="flex flex-col w-full gap-8">
               <div className="flex flex-col w-full gap-4">
-                <h3>Legend:</h3>
+                <h2>Legend:</h2>
                 <PanelContainer>
                   <>
                     <LegendLabel
@@ -219,7 +219,7 @@ export default function CScreen() {
                 </PanelContainer>
               </div>
               <div className="flex flex-col w-full gap-4">
-                <h3>Usage notes:</h3>
+                <h2>Usage notes:</h2>
                 <PanelContainer>
                   <p>
                     Hover over the dots to see the prompt request and its
@@ -229,16 +229,16 @@ export default function CScreen() {
                 </PanelContainer>
               </div>
               <div className="flex flex-col w-full gap-4">
-                <h3>Customize the params:</h3>
+                <h2>Customize the params:</h2>
                 <div className="flex flex-col w-full gap-4">
                   <PanelContainer>
                     <>
-                      <h4>
+                      <h3>
                         <a href="https://distill.pub/2016/misread-tsne/">
                           t-SNE clustering
                         </a>{" "}
                         parameters
-                      </h4>
+                      </h3>
                       <div className="flex flex-col w-full gap-4">
                         <div className="flex flex-col w-full gap-1">
                           <HyperParamNumericInput
@@ -275,7 +275,7 @@ export default function CScreen() {
                   </PanelContainer>
                   <PanelContainer>
                     <>
-                      <h4>Semantic cache parameters</h4>
+                      <h3>Semantic cache parameters</h3>
                       <div className="flex flex-col w-full">
                         <SliderInput
                           denominator={100}
