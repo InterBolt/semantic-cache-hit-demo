@@ -38,11 +38,10 @@ const processed =
 
 const convertVectorsToChartQuerys = <GAlgo extends keyof typeof algos>(
   algo: GAlgo,
-  algoParams: Parameters<(typeof algos)[GAlgo]>[1],
   processed: TProcessed,
   similarityThreshold: number
 ) => {
-  return algos[algo](processed, algoParams).map(
+  return algos[algo](processed).map(
     (point: { x: number; y: number }, i: number) => {
       const processedQuery = processed[i];
       const link = !processedQuery.cacheHit
@@ -131,203 +130,170 @@ const TooltipContent = (props: any) => {
   );
 };
 
-const CVisualization = React.memo(
-  (props: {
-    similarityThreshold: number;
-    epsilon: number;
-    perplexity: number;
-    steps: number;
-  }) => {
-    const windowSize = useWindowSize();
-    const { epsilon, steps, perplexity, similarityThreshold } = props;
+const CVisualization = React.memo((props: { similarityThreshold: number }) => {
+  const windowSize = useWindowSize();
+  const { similarityThreshold } = props;
 
-    const [expands, setExpands] = React.useState<string[]>([]);
-    const [cacheHitLines, setCacheHitLines] =
-      React.useState<null | TCacheHitLines>([]);
-    const [chartQueries, setChartQuerys] =
-      React.useState<null | Array<TChartQuery>>(null);
+  const [expands, setExpands] = React.useState<string[]>([]);
+  const [cacheHitLines, setCacheHitLines] =
+    React.useState<null | TCacheHitLines>([]);
+  const [chartQueries, setChartQuerys] =
+    React.useState<null | Array<TChartQuery>>(null);
 
-    React.useEffect(() => {
-      const points = convertVectorsToChartQuerys(
-        "tsne",
-        {
-          epsilon,
-          perplexity,
-          dim: 2,
-          steps,
-        },
-        processed,
-        similarityThreshold
-      );
-      let nextPoints;
-      if (!chartQueries) {
-        nextPoints = points;
-      } else {
-        nextPoints = chartQueries.map((cp, i) => ({
-          ...cp,
-          link: points[i].link,
-        }));
-      }
-      setChartQuerys(nextPoints);
-      setCacheHitLines(findCacheHitLines(nextPoints));
-    }, [similarityThreshold]);
-
-    React.useEffect(() => {
-      const points = convertVectorsToChartQuerys(
-        "tsne",
-        {
-          epsilon,
-          perplexity,
-          dim: 2,
-          steps,
-        },
-        processed,
-        similarityThreshold
-      );
-      setChartQuerys(points);
-      setCacheHitLines(findCacheHitLines(points));
-    }, [epsilon, steps, perplexity]);
-
-    const isMobile = windowSize?.width <= 700;
-
-    return !!chartQueries ? (
-      <ScatterChart
-        height={isMobile ? windowSize?.height - 200 : windowSize?.height - 200}
-        width={
-          isMobile ? windowSize?.width : ((windowSize?.width || 0) * 2) / 3
-        }
-        margin={{
-          top: 0,
-          right: 0,
-          left: 0,
-          bottom: 0,
-        }}
-      >
-        <XAxis
-          width={windowSize?.width}
-          range={[-1, 1]}
-          ticks={ticks}
-          tickSize={0.001}
-          allowDecimals={true}
-          tickMargin={0}
-          dataKey="x"
-          type="number"
-          name="query"
-          hide={true}
-        />
-        <YAxis
-          width={windowSize?.width}
-          range={[-1, 1]}
-          ticks={ticks}
-          tickSize={0.001}
-          tickMargin={0}
-          allowDecimals={true}
-          dataKey="y"
-          type="number"
-          hide={true}
-        />
-        {(cacheHitLines || []).map((segment, i) => (
-          <ReferenceLine
-            key={"cache-line-" + i}
-            segment={segment}
-            stroke={styles.colors.chartCacheHitLine}
-            strokeWidth={1}
-          />
-        ))}
-        <Tooltip
-          active={expands.length > 0}
-          position={{ x: 20, y: 20 }}
-          content={(props) => (
-            <TooltipContent
-              onClose={(x: number, y: number) => {
-                setExpands((prev) =>
-                  prev.filter(
-                    (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
-                  )
-                );
-              }}
-              {...props}
-            />
-          )}
-        />
-        <Scatter
-          isAnimationActive={false}
-          style={{
-            backgroundColor: "gray",
-            position: "relative",
-            zIndex: 0,
-          }}
-          data={chartQueries.map((cp) => ({ ...cp.point, ...cp }))}
-          fill="#ffffff"
-          shape={(props: any) => {
-            const { x, cy, cx, y, payload } = props;
-
-            return (
-              <g>
-                <circle
-                  className="transition-all"
-                  r={
-                    expands.includes(`${x.toFixed(2)}-${y.toFixed(2)}`) ? 15 : 6
-                  }
-                  cx={cx}
-                  cy={cy}
-                  fill={
-                    payload.isCache
-                      ? styles.colors.chartCached
-                      : styles.colors.chartQuery
-                  }
-                />
-                <circle
-                  onMouseEnter={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setExpands((prev) =>
-                      prev
-                        .filter(
-                          (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
-                        )
-                        .concat(`${x.toFixed(2)}-${y.toFixed(2)}`)
-                    );
-                  }}
-                  onMouseOut={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setExpands((prev) =>
-                      prev.filter(
-                        (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
-                      )
-                    );
-                  }}
-                  onMouseLeave={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setExpands((prev) =>
-                      prev.filter(
-                        (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
-                      )
-                    );
-                  }}
-                  r={windowSize?.width > 700 ? 6 : 10}
-                  cx={cx}
-                  cy={cy}
-                  fill={"transparent"}
-                />
-              </g>
-            );
-          }}
-        />
-      </ScatterChart>
-    ) : (
-      <div
-        style={{
-          width: "100%",
-          height: "800px",
-        }}
-      >
-        <div />
-      </div>
+  React.useEffect(() => {
+    const points = convertVectorsToChartQuerys(
+      "umap",
+      processed,
+      similarityThreshold
     );
-  }
-);
+    let nextPoints;
+    if (!chartQueries) {
+      nextPoints = points;
+    } else {
+      nextPoints = chartQueries.map((cp, i) => ({
+        ...cp,
+        link: points[i].link,
+      }));
+    }
+    setChartQuerys(nextPoints);
+    setCacheHitLines(findCacheHitLines(nextPoints));
+  }, [similarityThreshold]);
+
+  const isMobile = windowSize?.width <= 700;
+
+  return !!chartQueries ? (
+    <ScatterChart
+      height={isMobile ? windowSize?.height - 200 : windowSize?.height - 200}
+      width={windowSize?.width}
+      margin={{
+        top: 0,
+        right: 0,
+        left: 0,
+        bottom: 0,
+      }}
+    >
+      <XAxis
+        width={windowSize?.width}
+        range={[-1, 1]}
+        ticks={ticks}
+        tickSize={0.001}
+        allowDecimals={true}
+        tickMargin={0}
+        dataKey="x"
+        type="number"
+        name="query"
+        hide={true}
+      />
+      <YAxis
+        width={windowSize?.width}
+        range={[-1, 1]}
+        ticks={ticks}
+        tickSize={0.001}
+        tickMargin={0}
+        allowDecimals={true}
+        dataKey="y"
+        type="number"
+        hide={true}
+      />
+      {(cacheHitLines || []).map((segment, i) => (
+        <ReferenceLine
+          key={"cache-line-" + i}
+          segment={segment}
+          stroke={styles.colors.chartCacheHitLine}
+          strokeWidth={1}
+        />
+      ))}
+      <Tooltip
+        active={expands.length > 0}
+        position={{ x: 20, y: 20 }}
+        content={(props) => (
+          <TooltipContent
+            onClose={(x: number, y: number) => {
+              setExpands((prev) =>
+                prev.filter(
+                  (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
+                )
+              );
+            }}
+            {...props}
+          />
+        )}
+      />
+      <Scatter
+        isAnimationActive={false}
+        style={{
+          backgroundColor: "gray",
+          position: "relative",
+          zIndex: 0,
+        }}
+        data={chartQueries.map((cp) => ({ ...cp.point, ...cp }))}
+        fill="#ffffff"
+        shape={(props: any) => {
+          const { x, cy, cx, y, payload } = props;
+
+          return (
+            <g>
+              <circle
+                className="transition-all"
+                r={expands.includes(`${x.toFixed(2)}-${y.toFixed(2)}`) ? 15 : 6}
+                cx={cx}
+                cy={cy}
+                fill={
+                  payload.isCache
+                    ? styles.colors.chartCached
+                    : styles.colors.chartQuery
+                }
+              />
+              <circle
+                onMouseEnter={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setExpands((prev) =>
+                    prev
+                      .filter(
+                        (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
+                      )
+                      .concat(`${x.toFixed(2)}-${y.toFixed(2)}`)
+                  );
+                }}
+                onMouseOut={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setExpands((prev) =>
+                    prev.filter(
+                      (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
+                    )
+                  );
+                }}
+                onMouseLeave={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setExpands((prev) =>
+                    prev.filter(
+                      (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
+                    )
+                  );
+                }}
+                r={windowSize?.width > 700 ? 6 : 10}
+                cx={cx}
+                cy={cy}
+                fill={"transparent"}
+              />
+            </g>
+          );
+        }}
+      />
+    </ScatterChart>
+  ) : (
+    <div
+      style={{
+        width: "100%",
+        height: "800px",
+      }}
+    >
+      <div />
+    </div>
+  );
+});
 
 export default CVisualization;

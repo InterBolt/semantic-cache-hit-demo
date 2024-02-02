@@ -23,15 +23,8 @@ const CExplanation = () => {
         />
         <p>
           The visualizaton below uses a clustering algorithm called{" "}
-          <a href="https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding">
-            t-SNE
-          </a>{" "}
-          (
-          <i>
-            I might change this to{" "}
-            <a href="https://pair-code.github.io/understanding-umap/">UMAP</a>
-          </i>
-          ) to visualize clusters of semantically similar prompt requests. Each
+          <a href="https://pair-code.github.io/understanding-umap/">UMAP</a> to
+          visualize clusters of semantically similar prompt requests. Each
           prompt request is represented by a single dot and is meant to
           represent a hypothetical request to a generic AI. White dots denote
           prompt requests that were previously cached, and blue dots denote
@@ -77,25 +70,18 @@ const CExplanation = () => {
         </i>
         <br />
         <br />
-        <strong>Line length doesn't really mean anything.</strong>
+        <strong>Line length doesn't mean much.</strong>
         {` `}The distribution of individual dots (or prompt requests) is only
         meant to visualize <i>clusterings</i> of semantically similar prompt
         requests. But the exact distance between any two specific prompt
         requests in the visualization below is not a precise measurement of
         semantic similarity. It's impossible to accurately represent the global
         structure of a higher dimensional space in a 2D space. For more info
-        about the clustering algo,{" "}
-        <a href="https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding">
-          t-distributed stochastic neighbor embedding
-        </a>
-        , read{" "}
-        <a href="https://distill.pub/2016/misread-tsne/">
-          https://distill.pub/2016/misread-tsne/.
-        </a>
-        <br />
-        <br />
-        Credit to <a href="https://twitter.com/karpathy">karpathy</a>
-        {` `}for <a href="https://github.com/karpathy/tsnejs">tsnejs</a>.
+        about the clustering algo, UMAP, read this{" "}
+        <a href="https://pair-code.github.io/understanding-umap/">
+          in-depth article.
+        </a>{" "}
+        (I'm not the author)
         <br />
         <br />
         <a href="https://interbolt.org/blog/semantic-cache-demo/">

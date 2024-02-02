@@ -66,55 +66,6 @@ const SliderInput = ({
   );
 };
 
-const HyperParamNumericInput = ({
-  name,
-  onChange,
-  onError,
-  error,
-  value,
-  range: [min, max],
-}: {
-  name: string;
-  onChange: (str: string) => void;
-  onError: (error: string) => void;
-  error: string;
-  value: string;
-  range: [number, number];
-}) => {
-  return (
-    <>
-      <label htmlFor={name} className="">
-        {name[0].toUpperCase() + name.slice(1)} ({min}-{max}) -{" "}
-        <strong>currently {value}</strong>
-      </label>
-      {error ? <p className="font-semibold text-red-400">{error}</p> : null}
-      <input
-        aria-label={name}
-        value={value}
-        id={name}
-        onChange={(e) => {
-          const nextNumber = Number(e.target.value);
-          const isError = nextNumber < min || nextNumber > max;
-          onError(isError ? "Must be between 0-100" : "");
-          if (e.target.value === "") {
-            onChange("");
-          } else {
-            onChange(nextNumber.toFixed(0));
-          }
-        }}
-        style={{
-          borderColor: error ? "red" : "rgba(0, 0, 0, .2)",
-        }}
-        min={min}
-        max={max}
-        className="border-2 rounded-md"
-        name={name}
-        type="number"
-      />
-    </>
-  );
-};
-
 const LegendLabel = ({
   shape,
   description,
@@ -157,31 +108,12 @@ const LegendLabel = ({
 );
 
 export default function CScreen() {
-  const [epsilon, setEpsilon] = React.useState<string>("10");
-  const [perplexity, setPerplexity] = React.useState<string>("5");
-  const [steps, setSteps] = React.useState<string>("1000");
-
-  const [epsilonError, setEpsilonError] = React.useState("");
-  const [perplexityError, setPerplexityError] = React.useState("");
-  const [stepError, setStepError] = React.useState("");
-
   const [similarityThreshold, setSimilarityThreshold] = React.useState(0.6);
 
-  const [debouncedEpsilon] = useDebounceValue(epsilon, 1300);
-  const [debouncedPerplexity] = useDebounceValue(perplexity, 1300);
-  const [debouncedSteps] = useDebounceValue(steps, 1300);
   const [debouncedSimilarityThreshold] = useDebounceValue(
     similarityThreshold,
-    500
+    200
   );
-
-  const isDebouncing =
-    epsilon !== debouncedEpsilon ||
-    perplexity !== debouncedPerplexity ||
-    steps !== debouncedSteps;
-
-  const visualizationWillError =
-    !!epsilonError || !!perplexityError || !!stepError;
 
   return (
     <>
@@ -227,80 +159,24 @@ export default function CScreen() {
                 </PanelContainer>
               </div>
               <div className="flex flex-col w-full gap-4">
-                <h2>Usage notes:</h2>
                 <PanelContainer>
-                  <p>
-                    Hover over the dots to see the prompt request and its
-                    associated completion. And use the slider to change the
-                    similarity threshold.
-                  </p>
+                  <>
+                    <p>
+                      Hover over the dots to see the prompt request and its
+                      associated completion. And use the slider to change the
+                      similarity threshold.
+                    </p>
+                    <div className="flex flex-col w-full">
+                      <SliderInput
+                        denominator={100}
+                        name="similarity threshold"
+                        value={similarityThreshold}
+                        range={[0, 100]}
+                        onChange={setSimilarityThreshold}
+                      />
+                    </div>
+                  </>
                 </PanelContainer>
-              </div>
-              <div className="flex flex-col w-full gap-4">
-                <h2>Customize the params:</h2>
-                <div className="flex flex-col w-full gap-4">
-                  <PanelContainer>
-                    <>
-                      <h3>
-                        <a href="https://distill.pub/2016/misread-tsne/">
-                          t-SNE clustering
-                        </a>{" "}
-                        parameters
-                      </h3>
-                      <div className="flex flex-col w-full gap-4">
-                        <div className="flex flex-col w-full gap-1">
-                          <HyperParamNumericInput
-                            name="perplexity"
-                            onChange={setPerplexity}
-                            onError={setPerplexityError}
-                            error={perplexityError}
-                            value={perplexity}
-                            range={[0, 100]}
-                          />
-                        </div>
-                        <div className="flex flex-col w-full gap-1">
-                          <HyperParamNumericInput
-                            name="epsilon"
-                            onChange={setEpsilon}
-                            onError={setEpsilonError}
-                            error={epsilonError}
-                            value={epsilon}
-                            range={[1, 20]}
-                          />
-                        </div>
-                        <div className="flex flex-col w-full gap-1">
-                          <span className="mb-2 text-red-700">
-                            Warning: setting the step count too high might lock
-                            your browser due to the complexity of the
-                            computation.
-                          </span>
-                          <HyperParamNumericInput
-                            name="steps"
-                            onChange={setSteps}
-                            onError={setStepError}
-                            error={stepError}
-                            value={steps}
-                            range={[100, 20000]}
-                          />
-                        </div>
-                      </div>
-                    </>
-                  </PanelContainer>
-                  <PanelContainer>
-                    <>
-                      <h3>Semantic cache parameters</h3>
-                      <div className="flex flex-col w-full">
-                        <SliderInput
-                          denominator={100}
-                          name="similarity threshold"
-                          value={similarityThreshold}
-                          range={[0, 100]}
-                          onChange={setSimilarityThreshold}
-                        />
-                      </div>
-                    </>
-                  </PanelContainer>
-                </div>
               </div>
             </div>
           </section>
@@ -318,16 +194,9 @@ export default function CScreen() {
             background: `radial-gradient(circle, ${styles.colors.chartBackgroundFrom} 0%, ${styles.colors.chartBackgroundTo} 100%)`,
           }}
         >
-          {visualizationWillError || isDebouncing ? (
-            <div className="py-4 h-[700px]"></div>
-          ) : (
-            <LazyCVisualization
-              epsilon={Number(debouncedEpsilon || 10)}
-              perplexity={Number(debouncedPerplexity || 30)}
-              steps={Number(debouncedSteps || 5000)}
-              similarityThreshold={debouncedSimilarityThreshold}
-            />
-          )}
+          <LazyCVisualization
+            similarityThreshold={debouncedSimilarityThreshold}
+          />
         </section>
       </main>
     </>
