@@ -81,6 +81,7 @@ const findCacheHitLines = (chartQueries: Array<TChartQuery>) => {
 
 const TooltipContent = (props: any) => {
   const onTouch = () => {
+    if (window.innerWidth > 700) return;
     props.onClose(
       props.payload?.[0]?.payload?.x,
       props.payload?.[0]?.payload?.y
