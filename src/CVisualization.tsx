@@ -318,7 +318,7 @@ const CVisualization = React.memo(
                       )
                     );
                   }}
-                  r={15}
+                  r={4}
                   cx={cx}
                   cy={cy}
                   fill={"transparent"}
