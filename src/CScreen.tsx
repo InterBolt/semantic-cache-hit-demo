@@ -158,8 +158,8 @@ const LegendLabel = ({
 
 export default function CScreen() {
   const [epsilon, setEpsilon] = React.useState<string>("10");
-  const [perplexity, setPerplexity] = React.useState<string>("20");
-  const [steps, setSteps] = React.useState<string>("3000");
+  const [perplexity, setPerplexity] = React.useState<string>("5");
+  const [steps, setSteps] = React.useState<string>("1000");
 
   const [epsilonError, setEpsilonError] = React.useState("");
   const [perplexityError, setPerplexityError] = React.useState("");
@@ -178,8 +178,7 @@ export default function CScreen() {
   const isDebouncing =
     epsilon !== debouncedEpsilon ||
     perplexity !== debouncedPerplexity ||
-    steps !== debouncedSteps ||
-    similarityThreshold !== debouncedSimilarityThreshold;
+    steps !== debouncedSteps;
 
   const visualizationWillError =
     !!epsilonError || !!perplexityError || !!stepError;
@@ -270,13 +269,18 @@ export default function CScreen() {
                           />
                         </div>
                         <div className="flex flex-col w-full gap-1">
+                          <span className="mb-2 text-red-700">
+                            Warning: setting the step count too high might lock
+                            your browser due to the complexity of the
+                            computation.
+                          </span>
                           <HyperParamNumericInput
                             name="steps"
                             onChange={setSteps}
                             onError={setStepError}
                             error={stepError}
                             value={steps}
-                            range={[100, 5000]}
+                            range={[100, 20000]}
                           />
                         </div>
                       </div>
@@ -314,7 +318,7 @@ export default function CScreen() {
             background: `radial-gradient(circle, ${styles.colors.chartBackgroundFrom} 0%, ${styles.colors.chartBackgroundTo} 100%)`,
           }}
         >
-          {visualizationWillError && isDebouncing ? (
+          {visualizationWillError || isDebouncing ? (
             <div className="py-4 h-[700px]"></div>
           ) : (
             <LazyCVisualization

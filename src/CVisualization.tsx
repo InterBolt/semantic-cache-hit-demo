@@ -31,7 +31,10 @@ type TCacheHitLines<
   GCached = { x: number; y: number }
 > = Array<[GQuery, GCached]>;
 
-const processed = JSON.parse(untypedProcessed) as unknown as TProcessed;
+const processed =
+  typeof untypedProcessed === "object"
+    ? (untypedProcessed as TProcessed)
+    : (JSON.parse(untypedProcessed as any) as TProcessed);
 
 const convertVectorsToChartQuerys = <GAlgo extends keyof typeof algos>(
   algo: GAlgo,
@@ -98,17 +101,17 @@ const TooltipContent = (props: any) => {
       className="relative z-50 flex flex-col gap-4 max-w-full w-[90vw] sm:w-[700px] p-4 bg-white rounded-md shadow-md"
     >
       <div className="flex flex-col w-full">
-        {isCache ? <h4>Cached request:</h4> : <h4>Future request:</h4>}
+        {isCache ? <h4>Request:</h4> : <h4>Request:</h4>}
         <p>{prompt}</p>
       </div>
       {cachedCompletion ? (
         <>
           <div className="flex flex-col w-full">
-            <h4>Would use this cached response:</h4>
+            <h4>Response:</h4>
             <p>{cachedCompletion}</p>
           </div>
           <div className="flex flex-col w-full">
-            <h4>Generated with this request:</h4>
+            <h4>Semantically similar prompt request:</h4>
             <p>{cachedPrompt}</p>
           </div>
           <div className="flex flex-col w-full text-gray-600">
@@ -190,7 +193,9 @@ const CVisualization = React.memo(
     return !!chartQueries ? (
       <ScatterChart
         height={isMobile ? windowSize?.height - 200 : windowSize?.height - 200}
-        width={windowSize?.width}
+        width={
+          isMobile ? windowSize?.width : ((windowSize?.width || 0) * 2) / 3
+        }
         margin={{
           top: 0,
           right: 0,
