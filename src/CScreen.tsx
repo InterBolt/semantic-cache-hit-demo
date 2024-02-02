@@ -177,13 +177,13 @@ export default function CScreen() {
 
   return (
     <>
-      <main className="flex flex-col w-full gap-4 sm:gap-8">
-        <div className="flex flex-col w-full gap-4 p-4 pb-0 sm:gap-8 sm:p-0">
-          <section className="p-4 mt-0 bg-white rounded-lg shadow-md container-width sm:mt-8 sm:p-8">
+      <main className="flex flex-col w-full gap-0 sm:gap-8">
+        <div className="flex flex-col w-full gap-0 sm:gap-8">
+          <section className="p-4 mt-0 bg-white rounded-none shadow-none sm:shadow-md sm:rounded-lg container-width sm:mt-8 sm:p-8">
             <CExplanation />
           </section>
           <section
-            className="gap-4 p-4 bg-gray-300 rounded-lg shadow-md container-width sm:gap-8 sm:p-8"
+            className="gap-4 p-4 bg-gray-300 rounded-none shadow-none sm:shadow-md sm:rounded-lg container-width sm:gap-8 sm:p-8"
             style={{
               width: "100%",
               display: "flex",
