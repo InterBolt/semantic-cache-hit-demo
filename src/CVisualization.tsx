@@ -31,7 +31,7 @@ type TCacheHitLines<
   GCached = { x: number; y: number }
 > = Array<[GQuery, GCached]>;
 
-const processed = untypedProcessed as TProcessed;
+const processed = JSON.parse(untypedProcessed) as unknown as TProcessed;
 
 const convertVectorsToChartQuerys = <GAlgo extends keyof typeof algos>(
   algo: GAlgo,
