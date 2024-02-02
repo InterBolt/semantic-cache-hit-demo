@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useDebounce } from "usehooks-ts";
+import { useDebounceValue } from "usehooks-ts";
 import CExplanation from "./CExplanation";
 import styles from "./styles";
 import dynamic from "next/dynamic";
@@ -157,9 +157,9 @@ const LegendLabel = ({
 );
 
 export default function CScreen() {
-  const [epsilon, setEpsilon] = React.useState<string>("15");
-  const [perplexity, setPerplexity] = React.useState<string>("10");
-  const [steps, setSteps] = React.useState<string>("5000");
+  const [epsilon, setEpsilon] = React.useState<string>("10");
+  const [perplexity, setPerplexity] = React.useState<string>("20");
+  const [steps, setSteps] = React.useState<string>("3000");
 
   const [epsilonError, setEpsilonError] = React.useState("");
   const [perplexityError, setPerplexityError] = React.useState("");
@@ -167,10 +167,19 @@ export default function CScreen() {
 
   const [similarityThreshold, setSimilarityThreshold] = React.useState(0.6);
 
-  const debouncedEpsilon = useDebounce(epsilon, 1000);
-  const debouncedPerplexity = useDebounce(perplexity, 1000);
-  const debouncedSteps = useDebounce(steps, 1000);
-  const debouncedSimilarityThreshold = useDebounce(similarityThreshold, 100);
+  const [debouncedEpsilon] = useDebounceValue(epsilon, 1300);
+  const [debouncedPerplexity] = useDebounceValue(perplexity, 1300);
+  const [debouncedSteps] = useDebounceValue(steps, 1300);
+  const [debouncedSimilarityThreshold] = useDebounceValue(
+    similarityThreshold,
+    500
+  );
+
+  const isDebouncing =
+    epsilon !== debouncedEpsilon ||
+    perplexity !== debouncedPerplexity ||
+    steps !== debouncedSteps ||
+    similarityThreshold !== debouncedSimilarityThreshold;
 
   const visualizationWillError =
     !!epsilonError || !!perplexityError || !!stepError;
@@ -305,7 +314,7 @@ export default function CScreen() {
             background: `radial-gradient(circle, ${styles.colors.chartBackgroundFrom} 0%, ${styles.colors.chartBackgroundTo} 100%)`,
           }}
         >
-          {visualizationWillError ? (
+          {visualizationWillError && isDebouncing ? (
             <div className="py-4 h-[700px]"></div>
           ) : (
             <LazyCVisualization

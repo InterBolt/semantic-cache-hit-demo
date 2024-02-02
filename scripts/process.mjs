@@ -2,13 +2,11 @@ import { existsSync, readFileSync, unlinkSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import dotenv from "dotenv";
 import Openai from "openai";
+import * as promptCreators from "./lib/promptCreators.mjs";
 
 dotenv.config({
   path: resolve(process.cwd(), ".env"),
 });
-
-const tones = ["happy", "sad", "angry", "fearful", "surprised", "neutral"];
-const getRandomTone = () => tones[Math.floor(Math.random() * tones.length)];
 
 const promptAppendKeepItShort =
   "Your responses are extremely short and don't include details.";
@@ -20,138 +18,11 @@ const openai = new Openai({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const requesterFarmer = async () => {
-  const identity = `You are a scottish farmer who knows nothing about fitness.`;
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4-0125-preview",
-    messages: [
-      {
-        role: "system",
-        content: `${identity} Your responses are serious. ${promptAppendKeepItShort}`,
-      },
-      {
-        role: "user",
-        content: `
-          Respond as if you are asking for a new fitness routine that involves your farm animals.
-          Your tone is ${getRandomTone()}.
-        `.trim(),
-      },
-    ],
-  });
-  return completion.choices[0]?.message?.content;
-};
-
-const requesterFrenchRenaissancePainter = async () => {
-  const identity = `You are a french renaissance painter who is always in a good mood. You always respond in french.`;
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4-0125-preview",
-    messages: [
-      {
-        role: "system",
-        content: `${identity} Your responses are serious. ${promptAppendKeepItShort}`,
-      },
-      {
-        role: "user",
-        content: `
-          Respond as if you are asking for a new fitness routine that involves your farm animals.
-          Your tone is ${getRandomTone()}.
-          You must respond in french.
-        `.trim(),
-      },
-    ],
-  });
-  return completion.choices[0]?.message?.content;
-};
-
-const requesterOldCatLady = async () => {
-  const identity = `You are an old cat lady who lives in a small town in the midwest.`;
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4-0125-preview",
-    messages: [
-      {
-        role: "system",
-        content: `${identity} Your responses are serious. ${promptAppendKeepItShort}`,
-      },
-      {
-        role: "user",
-        content: `
-          Respond as if you are asking for a new fitness routine that involves your cats.
-          Your tone is ${getRandomTone()}.
-        `.trim(),
-      },
-    ],
-  });
-  return completion.choices[0]?.message?.content;
-};
-
-const requesterUnderwaterRobotMan = async () => {
-  const identity = `You are a robot who lives underwater.`;
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4-0125-preview",
-    messages: [
-      {
-        role: "system",
-        content: `${identity} Your responses are serious. ${promptAppendKeepItShort}`,
-      },
-      {
-        role: "user",
-        content: `
-          Respond as if you are asking for a new fitness routine that involves your underwater lifestyle.
-          Your tone is ${getRandomTone()}.
-        `.trim(),
-      },
-    ],
-  });
-  return completion.choices[0]?.message?.content;
-};
-
-const requesterFitnessExpert = async () => {
-  const identity = `You are a fitness expert with preference for cardio exercies.`;
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4-0125-preview",
-    messages: [
-      {
-        role: "system",
-        content: `${identity} Your responses are serious. ${promptAppendKeepItShort}`,
-      },
-      {
-        role: "user",
-        content: `
-          Respond as if you are asking for a new fitness routine that involves your expertise.
-          Your tone is ${getRandomTone()}.
-        `.trim(),
-      },
-    ],
-  });
-  return completion.choices[0]?.message?.content;
-};
-
-const requesterSamurai = async () => {
-  const identity = `You are a samurai who is always ready for battle.`;
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4-0125-preview",
-    messages: [
-      {
-        role: "system",
-        content: `${identity} Your responses are serious. ${promptAppendKeepItShort}`,
-      },
-      {
-        role: "user",
-        content: `
-          Respond as if you are asking for a new fitness routine that involves your samurai lifestyle.
-          Your tone is ${getRandomTone()}.
-        `.trim(),
-      },
-    ],
-  });
-  return completion.choices[0]?.message?.content;
-};
-
 const getVectorEmbedding = async (input) => {
   const {
     data: [{ embedding }],
   } = await openai.embeddings.create({
-    model: "text-embedding-3-small",
+    model: "text-embedding-3-large",
     input,
     encoding_format: "float",
   });
@@ -183,7 +54,9 @@ const processEmbeddings = async () => {
   const progressItems = JSON.parse(readFileSync(pathToProgressJson, "utf-8"));
 
   const nextProgressItems = await Promise.all(
-    progressItems.map(async (query) => {
+    progressItems.map(async (query, i) => {
+      await new Promise((resolve) => setTimeout(() => resolve(null), i * 50));
+      console.info(`Generating vector for: ${query.prompt}`);
       const vector = await getVectorEmbedding(query.prompt);
       return { ...query, vector };
     })
@@ -228,7 +101,11 @@ const processEmbeddings = async () => {
 };
 
 const getCompletion = async (prompt) => {
-  const identity = `You are fitness expert with a serious informative tone. You specialize in creating creative fitness routines tailored to the user's preferences.`;
+  const identity = `
+    You are skilled at providing answers, even if you don't know the answer to a question. 
+    You responses are serious and always look correct, even if they are not.
+    Never admit that you don't know something.
+  `.trim();
   const completion = await openai.chat.completions.create({
     model: "gpt-4",
     messages: [
@@ -245,76 +122,60 @@ const getCompletion = async (prompt) => {
   return completion.choices[0]?.message?.content;
 };
 
-// TODO: this just re-process but needs to handle taking the pre.json as an input
 const processPrompts = async () => {
   if (!existsSync(pathToProgressJson)) {
     throw new Error("No progress.json found.");
   }
 
-  const progressItems = JSON.parse(readFileSync(pathToProgressJson, "utf-8"));
-
-  for await (let progressItem of progressItems) {
-    if (progressItem.completion) {
-      continue;
+  const progressItemsLong = JSON.parse(
+    readFileSync(pathToProgressJson, "utf-8")
+  );
+  const progressItemsChunks = progressItemsLong.reduce((acc, item, i) => {
+    const index = Math.floor(i / 5);
+    if (!acc[index]) {
+      acc[index] = [];
     }
-    const completion = await getCompletion(progressItem.prompt);
-    progressItem.completion = completion;
-    writeFileSync(pathToProgressJson, JSON.stringify(progressItems, null, 2));
+    acc[index].push(item);
+    return acc;
+  }, []);
+
+  let progress = 0;
+
+  const final = [];
+
+  for await (let progressItems of progressItemsChunks) {
+    console.info(
+      `Processing ${progress + progressItems.length} of ${
+        progressItemsLong.length
+      } prompts`
+    );
+    progress += progressItems.length;
+    await Promise.all(
+      progressItems.map(async (progressItem) => {
+        if (progressItem.completion) {
+          return;
+        }
+        const completion = await getCompletion(progressItem.prompt);
+        progressItem.completion = completion;
+      })
+    );
+    final.push(...progressItems);
   }
+
+  writeFileSync(pathToProgressJson, JSON.stringify(final, null, 2));
 
   console.log("Queries have been completed.");
 };
 
 const createSyntheticPrompts = async () => {
-  const r1 = await Promise.all([
-    requesterSamurai(),
-    requesterFitnessExpert(),
-    requesterUnderwaterRobotMan(),
-    requesterOldCatLady(),
-    requesterFarmer(),
-    requesterFrenchRenaissancePainter(),
-  ]);
-  const r2 = await Promise.all([
-    requesterSamurai(),
-    requesterFitnessExpert(),
-    requesterUnderwaterRobotMan(),
-    requesterOldCatLady(),
-    requesterFarmer(),
-    requesterFrenchRenaissancePainter(),
-  ]);
-  const r3 = await Promise.all([
-    requesterSamurai(),
-    requesterFitnessExpert(),
-    requesterUnderwaterRobotMan(),
-    requesterOldCatLady(),
-    requesterFarmer(),
-    requesterFrenchRenaissancePainter(),
-  ]);
-  const r4 = await Promise.all([
-    requesterSamurai(),
-    requesterFitnessExpert(),
-    requesterUnderwaterRobotMan(),
-    requesterOldCatLady(),
-    requesterFarmer(),
-    requesterFrenchRenaissancePainter(),
-  ]);
-  const r5 = await Promise.all([
-    requesterSamurai(),
-    requesterFitnessExpert(),
-    requesterUnderwaterRobotMan(),
-    requesterOldCatLady(),
-    requesterFarmer(),
-    requesterFrenchRenaissancePainter(),
-  ]);
-  const r6 = await Promise.all([
-    requesterSamurai(),
-    requesterFitnessExpert(),
-    requesterUnderwaterRobotMan(),
-    requesterOldCatLady(),
-    requesterFarmer(),
-    requesterFrenchRenaissancePainter(),
-  ]);
-  const syntheticPrompts = [...r1, ...r2, ...r3, ...r4, ...r5, ...r6];
+  const syntheticPrompts = (
+    await Promise.all([
+      promptCreators.wantHistoryKnowledge(openai),
+      promptCreators.carProblems(openai),
+      promptCreators.inNeedOfLifeGuru(openai),
+    ])
+  ).flat(1);
+
   if (!syntheticPrompts.length) {
     throw new Error("No valid synthetic prompts found.");
   }
@@ -330,7 +191,6 @@ const main = async () => {
       "process/synthetic-prompts.json"
     );
     const syntheticPrompts = await createSyntheticPrompts();
-    console.log(syntheticPrompts);
 
     writeFileSync(
       pathToSyntheticPrompts,
