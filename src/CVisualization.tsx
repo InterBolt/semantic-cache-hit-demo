@@ -122,7 +122,7 @@ const TooltipContent = (props: any) => {
       ) : (
         <>
           <div className="flex flex-col w-full">
-            {isCache ? <h4>Cached response:</h4> : <h4>Future response:</h4>}
+            {isCache ? <h4>Response:</h4> : <h4>Response:</h4>}
             <p>{completion}</p>
           </div>
         </>

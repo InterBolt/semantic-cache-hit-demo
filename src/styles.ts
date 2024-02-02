@@ -1,6 +1,6 @@
 class Styles {
   public colors = {
-    chartQuery: "#40F8FF",
+    chartQuery: "#00cedc",
     chartCached: "white",
     chartCacheHitLine: "#A2FF86",
     chartBackgroundFrom: "#2a2546",
