@@ -267,7 +267,7 @@ const CVisualization = React.memo(
                 <circle
                   className="transition-all"
                   r={
-                    expands.includes(`${x.toFixed(2)}-${y.toFixed(2)}`) ? 15 : 4
+                    expands.includes(`${x.toFixed(2)}-${y.toFixed(2)}`) ? 15 : 6
                   }
                   cx={cx}
                   cy={cy}
@@ -318,7 +318,7 @@ const CVisualization = React.memo(
                       )
                     );
                   }}
-                  r={4}
+                  r={windowSize?.width > 700 ? 6 : 10}
                   cx={cx}
                   cy={cy}
                   fill={"transparent"}
