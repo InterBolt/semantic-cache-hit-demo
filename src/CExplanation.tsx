@@ -45,7 +45,7 @@ const CExplanation = () => {
         <br />
         <br />
         <strong>How is semantic similarity calculated?</strong>
-        {` `}The "Similarity" between any two prompt requests refers to the{" "}
+        {` `}The "similarity" between any two prompt requests refers to the{" "}
         <a href="https://en.wikipedia.org/wiki/Cosine_similarity">
           cosine similarity
         </a>{" "}
@@ -55,11 +55,8 @@ const CExplanation = () => {
         </a>
         . Vector embeddings encode semantic information within a high
         dimensional numerical vector array, and we can compare numerical vector
-        arrays using cosine similarity.{" "}
-        <a href="https://interbolt.org/blog/semantic-cache-demo/">
-          I wrote about this
-        </a>
-        .{" "}
+        arrays using cosine similarity. I wrote about this{" "}
+        <a href="https://interbolt.org/blog/semantic-cache-demo/">here</a>.{" "}
         <i>
           Vector embeddings for the prompt requests in the visualization were
           generated using one of OpenAI's latest embedding model,{" "}

@@ -173,6 +173,9 @@ const createSyntheticPrompts = async () => {
       promptCreators.wantHistoryKnowledge(openai),
       promptCreators.carProblems(openai),
       promptCreators.inNeedOfLifeGuru(openai),
+      promptCreators.dudeWithWritersBlock(openai),
+      promptCreators.overlyPersonalChatGPTUser(openai),
+      promptCreators.guyWithAGamblingProblem(openai),
     ])
   ).flat(1);
 

@@ -132,11 +132,11 @@ export default function CScreen() {
               alignItems: "center",
             }}
           >
-            <div className="flex flex-col w-full gap-8">
+            <div className="flex flex-col w-full gap-4 sm:gap-8">
               <div className="flex flex-col w-full gap-4">
-                <h2>Legend:</h2>
                 <PanelContainer>
                   <>
+                    <h2>Legend:</h2>
                     <LegendLabel
                       shape="dot"
                       name="Blue dot"
@@ -163,8 +163,7 @@ export default function CScreen() {
                   <>
                     <p>
                       Hover over the dots to see the prompt request and its
-                      associated completion. And use the slider to change the
-                      similarity threshold.
+                      associated completion.
                     </p>
                     <div className="flex flex-col w-full">
                       <SliderInput

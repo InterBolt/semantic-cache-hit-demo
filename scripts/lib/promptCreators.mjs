@@ -126,3 +126,126 @@ export const wantHistoryKnowledge = async (openai) => {
     return [];
   }
 };
+
+export const dudeWithWritersBlock = async (openai) => {
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4-0125-preview",
+    response_format: {
+      type: "json_object",
+    },
+    messages: [
+      {
+        role: "system",
+        content: `You are a skilled impersonator who can mimic the tone of any person or character.`,
+      },
+      {
+        role: "user",
+        content: `
+          Respond with a list 20 questions someone might ask a film writer to learn about how to write better films.
+          10 questions you provide should be unique and not a variation of another question. 
+          The other 10 questions should be variations of the first 10 questions.
+          Respond in JSON format likeso: { questions: Array<string> }.
+          Be creative.
+        `.trim(),
+      },
+    ],
+  });
+  const response = completion.choices[0]?.message?.content;
+  const parsedQuestions = (() => {
+    try {
+      return JSON.parse(response)?.questions;
+    } catch (err) {
+      return null;
+    }
+  })();
+  if (Array.isArray(parsedQuestions)) {
+    return parsedQuestions;
+  } else {
+    console.warn(
+      `Failed to get car problems questions. Got this instead: ${response}`
+    );
+    return [];
+  }
+};
+
+export const overlyPersonalChatGPTUser = async (openai) => {
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4-0125-preview",
+    response_format: {
+      type: "json_object",
+    },
+    messages: [
+      {
+        role: "system",
+        content: `You are a skilled impersonator who can mimic the tone of any person or character.`,
+      },
+      {
+        role: "user",
+        content: `
+          Respond with a list 20 questions someone might their closest friend.
+          10 questions you provide should be unique and not a variation of another question. 
+          The other 10 questions should be variations of the first 10 questions.
+          Respond in JSON format likeso: { questions: Array<string> }.
+          Be creative.
+        `.trim(),
+      },
+    ],
+  });
+  const response = completion.choices[0]?.message?.content;
+  const parsedQuestions = (() => {
+    try {
+      return JSON.parse(response)?.questions;
+    } catch (err) {
+      return null;
+    }
+  })();
+  if (Array.isArray(parsedQuestions)) {
+    return parsedQuestions;
+  } else {
+    console.warn(
+      `Failed to get car problems questions. Got this instead: ${response}`
+    );
+    return [];
+  }
+};
+
+export const guyWithAGamblingProblem = async (openai) => {
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4-0125-preview",
+    response_format: {
+      type: "json_object",
+    },
+    messages: [
+      {
+        role: "system",
+        content: `You are a skilled impersonator who can mimic the tone of any person or character.`,
+      },
+      {
+        role: "user",
+        content: `
+          Respond with a list 20 questions that a degenerate gamble might ask a professional football player.
+          10 questions you provide should be unique and not a variation of another question. 
+          The other 10 questions should be variations of the first 10 questions.
+          Respond in JSON format likeso: { questions: Array<string> }.
+          Be creative.
+        `.trim(),
+      },
+    ],
+  });
+  const response = completion.choices[0]?.message?.content;
+  const parsedQuestions = (() => {
+    try {
+      return JSON.parse(response)?.questions;
+    } catch (err) {
+      return null;
+    }
+  })();
+  if (Array.isArray(parsedQuestions)) {
+    return parsedQuestions;
+  } else {
+    console.warn(
+      `Failed to get car problems questions. Got this instead: ${response}`
+    );
+    return [];
+  }
+};

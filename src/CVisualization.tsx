@@ -23,7 +23,7 @@ type TChartQuery = {
   isCache: boolean;
   prompt: string;
   completion: string;
-  link: number | null;
+  cacheLink: number | null;
 };
 
 type TCacheHitLines<
@@ -56,7 +56,7 @@ const convertVectorsToChartQuerys = <GAlgo extends keyof typeof algos>(
         completion: processedQuery.completion,
         cachedPrompt: link ? processed[link].prompt : null,
         cachedCompletion: link ? processed[link].completion : null,
-        link: link,
+        cacheLink: link,
       };
     }
   );
@@ -70,9 +70,9 @@ const findCacheHitLines = (chartQueries: Array<TChartQuery>) => {
     if (chartQuery.isCache) {
       return;
     }
-    const linkedPoint = chartQuery.link;
-    if (typeof linkedPoint === "number") {
-      const linkedChartQuery = chartQueries[linkedPoint];
+    const cacheLink = chartQuery.cacheLink;
+    if (typeof cacheLink === "number") {
+      const linkedChartQuery = chartQueries[cacheLink];
       if (!linkedChartQuery.isCache) {
         return;
       }
@@ -84,13 +84,14 @@ const findCacheHitLines = (chartQueries: Array<TChartQuery>) => {
 
 const TooltipContent = (props: any) => {
   const prompt = props.payload?.[0]?.payload?.prompt;
-  const link = props.payload?.[0]?.payload?.link;
+  const cacheLink = props.payload?.[0]?.payload?.cacheLink;
   const isCache = props.payload?.[0]?.payload?.isCache || false;
   const completion = props.payload?.[0]?.payload?.completion;
-  const cachedCompletion = link
+
+  const cachedCompletion = cacheLink
     ? props.payload?.[0]?.payload?.cachedCompletion
     : undefined;
-  const cachedPrompt = link
+  const cachedPrompt = cacheLink
     ? props.payload?.[0]?.payload?.cachedPrompt
     : undefined;
 
@@ -152,7 +153,9 @@ const CVisualization = React.memo((props: { similarityThreshold: number }) => {
     } else {
       nextPoints = chartQueries.map((cp, i) => ({
         ...cp,
-        link: points[i].link,
+        cachedPrompt: points[i].cachedPrompt,
+        cachedCompletion: points[i].cachedCompletion,
+        cacheLink: points[i].cacheLink,
       }));
     }
     setChartQuerys(nextPoints);
