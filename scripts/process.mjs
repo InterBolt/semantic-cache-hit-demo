@@ -7,12 +7,123 @@ dotenv.config({
   path: resolve(process.cwd(), ".env"),
 });
 
+const tones = ["happy", "sad", "angry", "fearful", "surprised", "neutral"];
+const getRandomTone = () => tones[Math.floor(Math.random() * tones.length)];
+
+const promptAppendKeepItShort =
+  "Your responses are extremely short and don't include details.";
+
 const pathToProgressJson = resolve(process.cwd(), "process/progress.json");
 const pathToPostJson = resolve(process.cwd(), "process/post.json");
 
 const openai = new Openai({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+const requesterFarmer = async () => {
+  const identity = `You are a scottish farmer who knows nothing about fitness.`;
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4-0125-preview",
+    messages: [
+      {
+        role: "system",
+        content: `${identity} Your responses are serious. ${promptAppendKeepItShort}`,
+      },
+      {
+        role: "user",
+        content: `
+          Respond as if you are asking for a new fitness routine that involves your farm animals.
+          Your tone is ${getRandomTone()}.
+        `.trim(),
+      },
+    ],
+  });
+  return completion.choices[0]?.message?.content;
+};
+
+const requesterOldCatLady = async () => {
+  const identity = `You are an old cat lady who lives in a small town in the midwest.`;
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4-0125-preview",
+    messages: [
+      {
+        role: "system",
+        content: `${identity} Your responses are serious. ${promptAppendKeepItShort}`,
+      },
+      {
+        role: "user",
+        content: `
+          Respond as if you are asking for a new fitness routine that involves your cats.
+          Your tone is ${getRandomTone()}.
+        `.trim(),
+      },
+    ],
+  });
+  return completion.choices[0]?.message?.content;
+};
+
+const requesterUnderwaterRobotMan = async () => {
+  const identity = `You are a robot who lives underwater.`;
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4-0125-preview",
+    messages: [
+      {
+        role: "system",
+        content: `${identity} Your responses are serious. ${promptAppendKeepItShort}`,
+      },
+      {
+        role: "user",
+        content: `
+          Respond as if you are asking for a new fitness routine that involves your underwater lifestyle.
+          Your tone is ${getRandomTone()}.
+        `.trim(),
+      },
+    ],
+  });
+  return completion.choices[0]?.message?.content;
+};
+
+const requesterFitnessExpert = async () => {
+  const identity = `You are a fitness expert with preference for cardio exercies.`;
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4-0125-preview",
+    messages: [
+      {
+        role: "system",
+        content: `${identity} Your responses are serious. ${promptAppendKeepItShort}`,
+      },
+      {
+        role: "user",
+        content: `
+          Respond as if you are asking for a new fitness routine that involves your expertise.
+          Your tone is ${getRandomTone()}.
+        `.trim(),
+      },
+    ],
+  });
+  return completion.choices[0]?.message?.content;
+};
+
+const requesterSamurai = async () => {
+  const identity = `You are a samurai who is always ready for battle.`;
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4-0125-preview",
+    messages: [
+      {
+        role: "system",
+        content: `${identity} Your responses are serious. ${promptAppendKeepItShort}`,
+      },
+      {
+        role: "user",
+        content: `
+          Respond as if you are asking for a new fitness routine that involves your samurai lifestyle.
+          Your tone is ${getRandomTone()}.
+        `.trim(),
+      },
+    ],
+  });
+  return completion.choices[0]?.message?.content;
+};
 
 const getVectorEmbedding = async (input) => {
   const {
@@ -94,11 +205,8 @@ const processEmbeddings = async () => {
   console.log("Embeddings have been processed.");
 };
 
-const promptAppendKeepItShort =
-  "Your responses are extremely short and don't include details.";
-
 const getCompletion = async (prompt) => {
-  const identity = `You are fitness expert with a sense of humor. You specialize in creating creative fitness routines that use a wide variety of skills, environments, and situations.`;
+  const identity = `You are fitness expert with a serious informative tone. You specialize in creating creative fitness routines tailored to the user's preferences.`;
   const completion = await openai.chat.completions.create({
     model: "gpt-4",
     messages: [
@@ -112,79 +220,6 @@ const getCompletion = async (prompt) => {
   console.log(
     `Prompt: ${prompt} completed with: ${completion.choices[0]?.message?.content?.length}`
   );
-  return completion.choices[0]?.message?.content;
-};
-
-const getSemanticallyFlavoredPrompts = async (flavor) => {
-  const semanticFlavors = {
-    ocd: `
-      You are obssessive and compulsive. 
-      Details overwhelm you.
-      You need to know the most important details about a fitness routine.
-      You are a perfectionist and need to know the best way to do things.
-      You get anxious when things are not perfect.
-      You are a stickler for details.
-      You have a great sense of humor.
-      You are a perfectionist.
-    `,
-    paranoid: `
-      You are paranoid
-      You are constantly worried about the future.
-      You are always looking over your shoulder.
-      You are always on edge.
-      You are always worried about the future.
-      You are always worried about the government.
-    `,
-    outdoor_hippy: `
-      You are a free spirit.
-      You love yoga and meditation.
-      You are a nature lover.
-      You own lots of guinea pigs.
-      You are a vegan.
-      Your favorite color is green.
-      You are a tree hugger.
-      You are a hippy.
-    `,
-    introvert: `
-      You are an introvert.
-      You are shy.
-      You are a homebody.
-      You are a bookworm.
-      You are a loner.
-      You are a wallflower.
-      You are a hermit.
-    `,
-    extrovert: `
-      You are an extrovert.
-      You are outgoing.
-      You are a social butterfly.
-      You are a party animal.
-      You are a people person.
-      You are a life of the party.
-      You are a chatterbox.
-    `,
-  };
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4-0125-preview",
-    response_format: {
-      type: "json_object",
-    },
-    messages: [
-      {
-        role: "system",
-        content: `${semanticFlavors[flavor]} ${promptAppendKeepItShort}`,
-      },
-      {
-        role: "user",
-        content: `
-          You have ten different imaginary friends, each one represents a different facet of your personality. 
-          Each imaginary friend wants to start a new fitness routine. 
-          Pretend to be each of your imaginary friends and request a fitness routine as if your were them. 
-          Response in JSON likeso: { requests: Array<string> }
-        `.trim(),
-      },
-    ],
-  });
   return completion.choices[0]?.message?.content;
 };
 
@@ -209,20 +244,49 @@ const processPrompts = async () => {
 };
 
 const createSyntheticPrompts = async () => {
-  // Get prompts for each flavor
-  const flavors = [
-    "ocd",
-    "paranoid",
-    "outdoor_hippy",
-    "introvert",
-    "extrovert",
-  ];
-
-  const responses = Promise.all(flavors.map(getSemanticallyFlavoredPrompts));
-  const parsedResponses = (await responses).map((e) => JSON.parse(e));
-  const syntheticPrompts = parsedResponses
-    .map(({ requests }) => requests)
-    .flat(1);
+  const r1 = await Promise.all([
+    requesterSamurai(),
+    requesterFitnessExpert(),
+    requesterUnderwaterRobotMan(),
+    requesterOldCatLady(),
+    requesterFarmer(),
+  ]);
+  const r2 = await Promise.all([
+    requesterSamurai(),
+    requesterFitnessExpert(),
+    requesterUnderwaterRobotMan(),
+    requesterOldCatLady(),
+    requesterFarmer(),
+  ]);
+  const r3 = await Promise.all([
+    requesterSamurai(),
+    requesterFitnessExpert(),
+    requesterUnderwaterRobotMan(),
+    requesterOldCatLady(),
+    requesterFarmer(),
+  ]);
+  const r4 = await Promise.all([
+    requesterSamurai(),
+    requesterFitnessExpert(),
+    requesterUnderwaterRobotMan(),
+    requesterOldCatLady(),
+    requesterFarmer(),
+  ]);
+  const r5 = await Promise.all([
+    requesterSamurai(),
+    requesterFitnessExpert(),
+    requesterUnderwaterRobotMan(),
+    requesterOldCatLady(),
+    requesterFarmer(),
+  ]);
+  const r6 = await Promise.all([
+    requesterSamurai(),
+    requesterFitnessExpert(),
+    requesterUnderwaterRobotMan(),
+    requesterOldCatLady(),
+    requesterFarmer(),
+  ]);
+  const syntheticPrompts = [...r1, ...r2, ...r3, ...r4, ...r5, ...r6];
   if (!syntheticPrompts.length) {
     throw new Error("No valid synthetic prompts found.");
   }

@@ -52,6 +52,7 @@ const convertVectorsToChartQuerys = <GAlgo extends keyof typeof algos>(
         isCache: processedQuery.isCache,
         prompt: processedQuery.prompt,
         completion: processedQuery.completion,
+        cachedPrompt: link ? processed[link].prompt : null,
         cachedCompletion: link ? processed[link].completion : null,
         link: link,
       };
@@ -87,6 +88,9 @@ const TooltipContent = (props: any) => {
   const cachedCompletion = link
     ? props.payload?.[0]?.payload?.cachedCompletion
     : undefined;
+  const cachedPrompt = link
+    ? props.payload?.[0]?.payload?.cachedPrompt
+    : undefined;
 
   return (
     <div
@@ -102,6 +106,10 @@ const TooltipContent = (props: any) => {
           <div className="flex flex-col w-full">
             <h4>Would use this cached response:</h4>
             <p>{cachedCompletion}</p>
+          </div>
+          <div className="flex flex-col w-full">
+            <h4>Generated with this request:</h4>
+            <p>{cachedPrompt}</p>
           </div>
           <div className="flex flex-col w-full text-gray-600">
             <h4>Response if the cache didn't exist:</h4>
