@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { MouseEventHandler } from "react";
 import {
   ScatterChart,
   Tooltip,
@@ -80,18 +80,18 @@ const findCacheHitLines = (chartQueries: Array<TChartQuery>) => {
 };
 
 const TooltipContent = (props: any) => {
+  const onTouch = () => {
+    props.onClose(
+      props.payload?.[0]?.payload?.x,
+      props.payload?.[0]?.payload?.y
+    );
+  };
+
   React.useEffect(() => {
-    const onMouseOut = (event: MouseEvent) => {
-      if (event.target instanceof Element) {
-        if (event.target.closest(".recharts-tooltip-wrapper")) {
-          return;
-        }
-        props.onMouseLeave();
-      }
-    };
-    addEventListener("mouseout", onMouseOut);
-    return () => removeEventListener("mouseenter", onMouseOut);
-  }, []);
+    addEventListener("touchstart", onTouch);
+    return () => removeEventListener("touchstart", onTouch);
+  }, [onTouch]);
+
   const prompt = props.payload?.[0]?.payload?.prompt;
   const link = props.payload?.[0]?.payload?.link;
   const isCache = props.payload?.[0]?.payload?.isCache || false;
@@ -99,8 +99,12 @@ const TooltipContent = (props: any) => {
   const cachedCompletion = link
     ? props.payload?.[0]?.payload?.cachedCompletion
     : undefined;
+
   return (
-    <div className="flex flex-col gap-4 max-w-full w-[90vw] sm:w-[700px] p-4 bg-white rounded-md shadow-md">
+    <div
+      id="tooltip-prompt-request"
+      className="relative z-50 flex flex-col gap-4 max-w-full w-[90vw] sm:w-[700px] p-4 bg-white rounded-md shadow-md"
+    >
       <div className="flex flex-col w-full">
         {isCache ? <h4>Cached request:</h4> : <h4>Future request:</h4>}
         <p>{prompt}</p>
@@ -229,22 +233,41 @@ const CVisualization = React.memo(
             strokeWidth={1}
           />
         ))}
-        <Tooltip position={{ x: 20, y: 20 }} content={TooltipContent} />
+        <Tooltip
+          active={expands.length > 0}
+          position={{ x: 20, y: 20 }}
+          content={(props) => (
+            <TooltipContent
+              onClose={(x: number, y: number) => {
+                setExpands((prev) =>
+                  prev.filter(
+                    (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
+                  )
+                );
+              }}
+              {...props}
+            />
+          )}
+        />
         <Scatter
           isAnimationActive={false}
           style={{
             backgroundColor: "gray",
+            position: "relative",
+            zIndex: 0,
           }}
           data={chartQueries.map((cp) => ({ ...cp.point, ...cp }))}
           fill="#ffffff"
           shape={(props: any) => {
-            const { cx, cy, payload } = props;
+            const { x, cy, cx, y, payload } = props;
 
             return (
               <g>
                 <circle
                   className="transition-all"
-                  r={expands.includes(`${cx}-${cy}`) ? 15 : 4}
+                  r={
+                    expands.includes(`${x.toFixed(2)}-${y.toFixed(2)}`) ? 15 : 4
+                  }
                   cx={cx}
                   cy={cy}
                   fill={
@@ -259,8 +282,10 @@ const CVisualization = React.memo(
                     e.stopPropagation();
                     setExpands((prev) =>
                       prev
-                        .filter((e: string) => e !== `${cx}-${cy}`)
-                        .concat(`${cx}-${cy}`)
+                        .filter(
+                          (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
+                        )
+                        .concat(`${x.toFixed(2)}-${y.toFixed(2)}`)
                     );
                   }}
                   onMouseEnter={(e) => {
@@ -268,25 +293,31 @@ const CVisualization = React.memo(
                     e.stopPropagation();
                     setExpands((prev) =>
                       prev
-                        .filter((e: string) => e !== `${cx}-${cy}`)
-                        .concat(`${cx}-${cy}`)
+                        .filter(
+                          (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
+                        )
+                        .concat(`${x.toFixed(2)}-${y.toFixed(2)}`)
                     );
                   }}
                   onMouseOut={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setExpands((prev) =>
-                      prev.filter((e: string) => e !== `${cx}-${cy}`)
+                      prev.filter(
+                        (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
+                      )
                     );
                   }}
                   onMouseLeave={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setExpands((prev) =>
-                      prev.filter((e: string) => e !== `${cx}-${cy}`)
+                      prev.filter(
+                        (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
+                      )
                     );
                   }}
-                  r={8}
+                  r={15}
                   cx={cx}
                   cy={cy}
                   fill={"transparent"}
