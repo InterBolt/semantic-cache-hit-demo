@@ -80,19 +80,6 @@ const findCacheHitLines = (chartQueries: Array<TChartQuery>) => {
 };
 
 const TooltipContent = (props: any) => {
-  const onTouch = () => {
-    if (window.innerWidth > 700) return;
-    props.onClose(
-      props.payload?.[0]?.payload?.x,
-      props.payload?.[0]?.payload?.y
-    );
-  };
-
-  React.useEffect(() => {
-    addEventListener("touchstart", onTouch);
-    return () => removeEventListener("touchstart", onTouch);
-  }, [onTouch]);
-
   const prompt = props.payload?.[0]?.payload?.prompt;
   const link = props.payload?.[0]?.payload?.link;
   const isCache = props.payload?.[0]?.payload?.isCache || false;
@@ -278,17 +265,6 @@ const CVisualization = React.memo(
                   }
                 />
                 <circle
-                  onTouchStart={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setExpands((prev) =>
-                      prev
-                        .filter(
-                          (e: string) => e !== `${x.toFixed(2)}-${y.toFixed(2)}`
-                        )
-                        .concat(`${x.toFixed(2)}-${y.toFixed(2)}`)
-                    );
-                  }}
                   onMouseEnter={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
