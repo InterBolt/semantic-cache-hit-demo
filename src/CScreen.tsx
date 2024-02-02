@@ -157,9 +157,9 @@ const LegendLabel = ({
 );
 
 export default function CScreen() {
-  const [epsilon, setEpsilon] = React.useState<string>("13");
-  const [perplexity, setPerplexity] = React.useState<string>("2");
-  const [steps, setSteps] = React.useState<string>("999");
+  const [epsilon, setEpsilon] = React.useState<string>("10");
+  const [perplexity, setPerplexity] = React.useState<string>("30");
+  const [steps, setSteps] = React.useState<string>("500");
 
   const [epsilonError, setEpsilonError] = React.useState("");
   const [perplexityError, setPerplexityError] = React.useState("");
