@@ -165,7 +165,7 @@ export default function CScreen() {
   const [perplexityError, setPerplexityError] = React.useState("");
   const [stepError, setStepError] = React.useState("");
 
-  const [similarityThreshold, setSimilarityThreshold] = React.useState(0.2);
+  const [similarityThreshold, setSimilarityThreshold] = React.useState(0.6);
 
   const debouncedEpsilon = useDebounce(epsilon, 1000);
   const debouncedPerplexity = useDebounce(perplexity, 1000);
