@@ -158,8 +158,8 @@ const LegendLabel = ({
 
 export default function CScreen() {
   const [epsilon, setEpsilon] = React.useState<string>("15");
-  const [perplexity, setPerplexity] = React.useState<string>("2");
-  const [steps, setSteps] = React.useState<string>("500");
+  const [perplexity, setPerplexity] = React.useState<string>("10");
+  const [steps, setSteps] = React.useState<string>("5000");
 
   const [epsilonError, setEpsilonError] = React.useState("");
   const [perplexityError, setPerplexityError] = React.useState("");
@@ -267,7 +267,7 @@ export default function CScreen() {
                             onError={setStepError}
                             error={stepError}
                             value={steps}
-                            range={[100, 1000]}
+                            range={[100, 5000]}
                           />
                         </div>
                       </div>
@@ -311,7 +311,7 @@ export default function CScreen() {
             <LazyCVisualization
               epsilon={Number(debouncedEpsilon || 10)}
               perplexity={Number(debouncedPerplexity || 30)}
-              steps={Number(debouncedSteps || 500)}
+              steps={Number(debouncedSteps || 5000)}
               similarityThreshold={debouncedSimilarityThreshold}
             />
           )}
