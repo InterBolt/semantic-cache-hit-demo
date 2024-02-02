@@ -41,6 +41,28 @@ const requesterFarmer = async () => {
   return completion.choices[0]?.message?.content;
 };
 
+const requesterFrenchRenaissancePainter = async () => {
+  const identity = `You are a french renaissance painter who is always in a good mood. You always respond in french.`;
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4-0125-preview",
+    messages: [
+      {
+        role: "system",
+        content: `${identity} Your responses are serious. ${promptAppendKeepItShort}`,
+      },
+      {
+        role: "user",
+        content: `
+          Respond as if you are asking for a new fitness routine that involves your farm animals.
+          Your tone is ${getRandomTone()}.
+          You must respond in french.
+        `.trim(),
+      },
+    ],
+  });
+  return completion.choices[0]?.message?.content;
+};
+
 const requesterOldCatLady = async () => {
   const identity = `You are an old cat lady who lives in a small town in the midwest.`;
   const completion = await openai.chat.completions.create({
@@ -250,6 +272,7 @@ const createSyntheticPrompts = async () => {
     requesterUnderwaterRobotMan(),
     requesterOldCatLady(),
     requesterFarmer(),
+    requesterFrenchRenaissancePainter(),
   ]);
   const r2 = await Promise.all([
     requesterSamurai(),
@@ -257,6 +280,7 @@ const createSyntheticPrompts = async () => {
     requesterUnderwaterRobotMan(),
     requesterOldCatLady(),
     requesterFarmer(),
+    requesterFrenchRenaissancePainter(),
   ]);
   const r3 = await Promise.all([
     requesterSamurai(),
@@ -264,6 +288,7 @@ const createSyntheticPrompts = async () => {
     requesterUnderwaterRobotMan(),
     requesterOldCatLady(),
     requesterFarmer(),
+    requesterFrenchRenaissancePainter(),
   ]);
   const r4 = await Promise.all([
     requesterSamurai(),
@@ -271,6 +296,7 @@ const createSyntheticPrompts = async () => {
     requesterUnderwaterRobotMan(),
     requesterOldCatLady(),
     requesterFarmer(),
+    requesterFrenchRenaissancePainter(),
   ]);
   const r5 = await Promise.all([
     requesterSamurai(),
@@ -278,6 +304,7 @@ const createSyntheticPrompts = async () => {
     requesterUnderwaterRobotMan(),
     requesterOldCatLady(),
     requesterFarmer(),
+    requesterFrenchRenaissancePainter(),
   ]);
   const r6 = await Promise.all([
     requesterSamurai(),
@@ -285,6 +312,7 @@ const createSyntheticPrompts = async () => {
     requesterUnderwaterRobotMan(),
     requesterOldCatLady(),
     requesterFarmer(),
+    requesterFrenchRenaissancePainter(),
   ]);
   const syntheticPrompts = [...r1, ...r2, ...r3, ...r4, ...r5, ...r6];
   if (!syntheticPrompts.length) {
