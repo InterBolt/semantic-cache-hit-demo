@@ -169,15 +169,24 @@ const CVisualization = React.memo((props: { similarityThreshold: number }) => {
     setCacheHitLines(findCacheHitLines(nextPoints));
   };
 
+  const previousSimilarityThreshold = React.useRef<number | null>(
+    similarityThreshold
+  );
+
   React.useEffect(() => {
-    handleSimilarityThresholdChange(similarityThreshold);
+    if (previousSimilarityThreshold.current !== similarityThreshold) {
+      previousSimilarityThreshold.current = similarityThreshold;
+      handleSimilarityThresholdChange(similarityThreshold);
+    }
   }, [similarityThreshold]);
 
-  const isMobile = windowSize?.width <= 700;
+  React.useEffect(() => {
+    handleSimilarityThresholdChange(similarityThreshold);
+  }, []);
 
   return !!chartQueries ? (
     <ScatterChart
-      height={700}
+      height={600}
       width={windowSize?.width}
       margin={{
         top: 0,
@@ -301,7 +310,7 @@ const CVisualization = React.memo((props: { similarityThreshold: number }) => {
   ) : (
     <>
       <div
-        className="flex justify-center w-full px-8 py-12 text-lg font-bold text-center text-white"
+        className="flex justify-center w-full px-8 h-[100px] items-center text-lg font-bold text-center text-white"
         style={{
           display: "flex",
           width: "100%",
@@ -314,7 +323,7 @@ const CVisualization = React.memo((props: { similarityThreshold: number }) => {
           width: "100%",
           height:
             typeof progress === "number"
-              ? `${400 * (progress / 100)}px`
+              ? `${500 * (progress / 100)}px`
               : "0px",
         }}
       >
