@@ -177,7 +177,7 @@ const CVisualization = React.memo((props: { similarityThreshold: number }) => {
 
   return !!chartQueries ? (
     <ScatterChart
-      height={isMobile ? windowSize?.height - 200 : windowSize?.height - 200}
+      height={700}
       width={windowSize?.width}
       margin={{
         top: 0,
