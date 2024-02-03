@@ -5,22 +5,10 @@ import React from "react";
 const CExplanation = () => {
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex flex-col w-full">
+        <h2>Explanation</h2>
+      </div>
       <div className="flex flex-col w-full gap-4">
-        <div className="flex flex-col w-full">
-          <h1>Semantic Cache Hits</h1>
-          <p className="text-gray-700">
-            An interactive clustering visualization of a semantic cache.
-          </p>
-        </div>
-        <img
-          alt="banner"
-          style={{
-            width: "100%",
-            height: "auto",
-            borderRadius: ".5rem",
-          }}
-          src="/images/banner.webp"
-        />
         <p>
           The visualizaton below uses a clustering algorithm called{" "}
           <a href="https://pair-code.github.io/understanding-umap/">UMAP</a> to

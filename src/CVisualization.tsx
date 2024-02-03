@@ -36,30 +36,31 @@ const processed =
     ? (untypedProcessed as TProcessed)
     : (JSON.parse(untypedProcessed as any) as TProcessed);
 
-const convertVectorsToChartQuerys = <GAlgo extends keyof typeof algos>(
+const convertVectorsToChartQuerys = async <GAlgo extends keyof typeof algos>(
   algo: GAlgo,
   processed: TProcessed,
-  similarityThreshold: number
+  similarityThreshold: number,
+  onLoading: (n: number) => void,
+  isAsync: boolean
 ) => {
-  return algos[algo](processed).map(
-    (point: { x: number; y: number }, i: number) => {
-      const processedQuery = processed[i];
-      const link = !processedQuery.cacheHit
-        ? null
-        : processedQuery.cacheHit.similarity > similarityThreshold
-        ? processedQuery.cacheHit.index
-        : null;
-      return {
-        point,
-        isCache: processedQuery.isCache,
-        prompt: processedQuery.prompt,
-        completion: processedQuery.completion,
-        cachedPrompt: link ? processed[link].prompt : null,
-        cachedCompletion: link ? processed[link].completion : null,
-        cacheLink: link,
-      };
-    }
-  );
+  const vals = await algos[algo](processed, onLoading, isAsync);
+  return vals.map((point: { x: number; y: number }, i: number) => {
+    const processedQuery = processed[i];
+    const link = !processedQuery.cacheHit
+      ? null
+      : processedQuery.cacheHit.similarity > similarityThreshold
+      ? processedQuery.cacheHit.index
+      : null;
+    return {
+      point,
+      isCache: processedQuery.isCache,
+      prompt: processedQuery.prompt,
+      completion: processedQuery.completion,
+      cachedPrompt: link ? processed[link].prompt : null,
+      cachedCompletion: link ? processed[link].completion : null,
+      cacheLink: link,
+    };
+  });
 };
 
 const ticks = [...Array(2000).keys()].map((_, i) => -1 + i * 0.001);
@@ -135,18 +136,24 @@ const CVisualization = React.memo((props: { similarityThreshold: number }) => {
   const windowSize = useWindowSize();
   const { similarityThreshold } = props;
 
+  const [progress, setProgress] = React.useState<number | null>(null);
   const [expands, setExpands] = React.useState<string[]>([]);
   const [cacheHitLines, setCacheHitLines] =
     React.useState<null | TCacheHitLines>([]);
   const [chartQueries, setChartQuerys] =
     React.useState<null | Array<TChartQuery>>(null);
 
-  React.useEffect(() => {
-    const points = convertVectorsToChartQuerys(
+  const handleSimilarityThresholdChange = async (n: number) => {
+    const points = await convertVectorsToChartQuerys(
       "umap",
       processed,
-      similarityThreshold
+      n,
+      (epoch: number) => {
+        setProgress(Number(((epoch / 500) * 100).toFixed(0)));
+      },
+      !chartQueries
     );
+    setProgress(null);
     let nextPoints;
     if (!chartQueries) {
       nextPoints = points;
@@ -160,6 +167,10 @@ const CVisualization = React.memo((props: { similarityThreshold: number }) => {
     }
     setChartQuerys(nextPoints);
     setCacheHitLines(findCacheHitLines(nextPoints));
+  };
+
+  React.useEffect(() => {
+    handleSimilarityThresholdChange(similarityThreshold);
   }, [similarityThreshold]);
 
   const isMobile = windowSize?.width <= 700;
@@ -288,14 +299,28 @@ const CVisualization = React.memo((props: { similarityThreshold: number }) => {
       />
     </ScatterChart>
   ) : (
-    <div
-      style={{
-        width: "100%",
-        height: "800px",
-      }}
-    >
-      <div />
-    </div>
+    <>
+      <div
+        className="flex justify-center w-full px-8 py-12 text-lg font-bold text-center text-white"
+        style={{
+          display: "flex",
+          width: "100%",
+        }}
+      >
+        <p>One sec. Computing semantic clusters using UMAP...</p>
+      </div>
+      <div
+        style={{
+          width: "100%",
+          height:
+            typeof progress === "number"
+              ? `${400 * (progress / 100)}px`
+              : "0px",
+        }}
+      >
+        <div />
+      </div>
+    </>
   );
 });
 

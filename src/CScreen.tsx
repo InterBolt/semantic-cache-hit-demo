@@ -16,7 +16,7 @@ const LazyCVisualization = dynamic(() => import("@/src/CVisualization"), {
 
 const PanelContainer = ({ children }: { children: JSX.Element }) => {
   return (
-    <div className="flex flex-col w-full gap-4 p-4 bg-white rounded-md shadow sm:p-8">
+    <div className="flex flex-col w-full gap-4 p-4 bg-white rounded-md shadow">
       {children}
     </div>
   );
@@ -25,10 +25,12 @@ const PanelContainer = ({ children }: { children: JSX.Element }) => {
 const SliderInput = ({
   denominator,
   name,
+  extra,
   value,
   range: [min, max],
   onChange,
 }: {
+  extra?: string;
   denominator: number;
   range: [number, number];
   value: number;
@@ -46,7 +48,8 @@ const SliderInput = ({
         }}
       >
         {name[0].toUpperCase() + name.slice(1)} -{" "}
-        <span style={{ fontWeight: "bold" }}> currently {value}</span>
+        <span style={{ fontWeight: "bold" }}> currently {value}</span>{" "}
+        {extra || ""}
       </label>
       <input
         className="w-full"
@@ -77,13 +80,13 @@ const LegendLabel = ({
   color: string;
 }) => (
   <div className="flex items-center gap-4">
-    <div className="flex flex-col justify-center items-center py-4 min-w-[4rem] w-[4rem] min-h-[4rem] h-[4rem] rounded-md  bg-gradient-to-r from-gray-800 to-gray-950">
+    <div className="flex flex-col justify-center items-center py-2 min-w-[2rem] w-[2rem] min-h-[2rem] h-[2rem] rounded-md  bg-gradient-to-r from-gray-800 to-gray-950">
       {shape === "dot" ? (
         <div
           className="m-auto"
           style={{
-            width: "2rem",
-            height: "2rem",
+            width: "1rem",
+            height: "1rem",
             borderRadius: "50%",
             backgroundColor: color,
           }}
@@ -94,7 +97,7 @@ const LegendLabel = ({
         <div
           className="m-auto"
           style={{
-            width: "2rem",
+            width: "1rem",
             height: "3px",
             backgroundColor: color,
           }}
@@ -117,22 +120,51 @@ export default function CScreen() {
 
   return (
     <>
-      <main className="flex flex-col w-full gap-0 sm:gap-8">
-        <div className="flex flex-col w-full gap-0 sm:gap-8">
-          <section className="p-4 mt-0 bg-white rounded-none shadow-none sm:shadow-md sm:rounded-lg container-width sm:mt-8 sm:p-8">
-            <CExplanation />
-          </section>
-          <section
-            className="gap-4 p-4 bg-gray-300 rounded-none shadow-none sm:shadow-md sm:rounded-lg container-width sm:gap-8 sm:p-8"
-            style={{
-              width: "100%",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <div className="flex flex-col w-full gap-4 sm:gap-8">
+      <main className="flex flex-col w-full">
+        <section className="flex flex-col w-full">
+          <div className="flex flex-col items-center justify-center w-full py-4 text-center">
+            <h1>Semantic Cache Hits</h1>
+            <p className="mt-2 text-lg text-gray-700">
+              An interactive clustering visualization of a semantic cache.
+            </p>
+            <p className="mt-4 italic text-gray-700">
+              <strong>Scroll below</strong> for the legend and an explanation of
+              the visualization and <strong>hover/touch the dots</strong> for
+              more info.
+            </p>
+          </div>
+          <div className="flex justify-center w-full py-2 bg-gray-200 border-0 border-t border-gray-300 sm:py-4">
+            <div className="w-full max-w-[600px] px-8 flex-col flex">
+              <SliderInput
+                denominator={100}
+                name="similarity threshold"
+                value={similarityThreshold}
+                range={[0, 100]}
+                onChange={setSimilarityThreshold}
+              />
+            </div>
+          </div>
+        </section>
+        <section
+          style={{
+            position: "relative",
+            width: "100%",
+            display: "flex",
+            overflow: "hidden",
+            borderRadius: 0,
+            flexDirection: "column",
+            border: "none",
+            alignItems: "center",
+            background: `radial-gradient(circle, ${styles.colors.chartBackgroundFrom} 0%, ${styles.colors.chartBackgroundTo} 100%)`,
+          }}
+        >
+          <LazyCVisualization
+            similarityThreshold={debouncedSimilarityThreshold}
+          />
+        </section>
+        <div className="flex flex-col w-full pb-0 mt-0 sm:pb-16 sm:mt-4">
+          <section className="flex flex-col items-center justify-center w-full gap-4 p-4 mx-auto bg-gray-300 rounded-none shadow-none sm:shadow-md sm:rounded-lg container-width">
+            <div className="flex flex-col w-full gap-4">
               <div className="flex flex-col w-full gap-4">
                 <PanelContainer>
                   <>
@@ -158,45 +190,12 @@ export default function CScreen() {
                   </>
                 </PanelContainer>
               </div>
-              <div className="flex flex-col w-full gap-4">
-                <PanelContainer>
-                  <>
-                    <p>
-                      Hover over the dots to see the prompt request and its
-                      associated completion.
-                    </p>
-                    <div className="flex flex-col w-full">
-                      <SliderInput
-                        denominator={100}
-                        name="similarity threshold"
-                        value={similarityThreshold}
-                        range={[0, 100]}
-                        onChange={setSimilarityThreshold}
-                      />
-                    </div>
-                  </>
-                </PanelContainer>
-              </div>
             </div>
           </section>
+          <section className="p-4 pb-16 mx-auto mt-0 bg-white rounded-none shadow-none sm:pb-0 sm:mt-4 sm:p-6 sm:shadow-md sm:rounded-lg container-width">
+            <CExplanation />
+          </section>
         </div>
-        <section
-          style={{
-            position: "relative",
-            width: "100%",
-            display: "flex",
-            overflow: "hidden",
-            borderRadius: 0,
-            flexDirection: "column",
-            border: "none",
-            alignItems: "center",
-            background: `radial-gradient(circle, ${styles.colors.chartBackgroundFrom} 0%, ${styles.colors.chartBackgroundTo} 100%)`,
-          }}
-        >
-          <LazyCVisualization
-            similarityThreshold={debouncedSimilarityThreshold}
-          />
-        </section>
       </main>
     </>
   );
