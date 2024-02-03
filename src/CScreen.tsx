@@ -122,7 +122,7 @@ export default function CScreen() {
     <>
       <main className="flex flex-col w-full">
         <section className="flex flex-col w-full">
-          <div className="flex flex-col items-center justify-center w-full py-4 text-center">
+          <div className="flex flex-col items-center justify-center w-full px-4 py-4 text-center">
             <h1>Semantic Cache Hits</h1>
             <p className="mt-2 text-lg text-gray-700">
               An interactive clustering visualization of a semantic cache.
