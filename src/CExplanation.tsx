@@ -10,7 +10,7 @@ const CExplanation = () => {
       </div>
       <div className="flex flex-col w-full gap-4">
         <p>
-          The visualizaton below uses a clustering algorithm called{" "}
+          The visualizaton uses a clustering algorithm called{" "}
           <a href="https://pair-code.github.io/understanding-umap/">UMAP</a> to
           visualize clusters of semantically similar prompt requests. Each
           prompt request is represented by a single dot and is meant to
