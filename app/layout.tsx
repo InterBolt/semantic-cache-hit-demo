@@ -60,6 +60,11 @@ export default function RootLayout({
           href="/favicon-16x16.png"
         />
         <link rel="manifest" href="/site.webmanifest" />
+        <script
+          async
+          data-domain="semanticcachehit.com"
+          src="https://plausible.io/js/script.js"
+        ></script>
       </head>
       <body className="flex flex-col min-h-[100vh] w-full max-w-[100vw] bg-gradient-to-b from-white to-gray-200">
         {children}
