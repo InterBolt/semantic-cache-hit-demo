@@ -1,6 +1,7 @@
 import CScreen from "@/src/CScreen";
 import Script from "next/script";
 import { metadata } from "./layout";
+import styles from "@/src/styles";
 
 const schemaOrg = {
   "@context": `https://schema.org`,
@@ -34,6 +35,28 @@ export default function Home() {
         strategy="beforeInteractive"
         type="application/ld+json"
       >{`${JSON.stringify(schemaOrg)}`}</Script>
+      <a
+        href="https://interbolt.ck.page/8e222f4c7a"
+        style={{
+          textDecoration: "none",
+          position: "relative",
+          zIndex: 1000,
+          cursor: "pointer",
+          width: "100%",
+          lineHeight: "1.8",
+          textAlign: "center",
+          boxSizing: "border-box",
+          justifyContent: "center",
+          padding: 10,
+          fontSize: 14,
+          fontFamily: "monospace",
+          fontWeight: "bold",
+          color: "white",
+          background: styles.colors.chartBackgroundFrom,
+        }}
+      >
+        Like this demo? Subscribe for more &#8594;
+      </a>
       <CScreen />
     </>
   );
